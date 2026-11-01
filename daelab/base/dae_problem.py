@@ -1,9 +1,27 @@
 class DAEProblem:
+    """Base class for differential-algebraic equations problems."""
     def __init__(
         self,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
     ):
+        """
+        Initializes a DAE Problem.
+
+        Parameters
+        ----------
+        t_span : tuple[float, float] or None
+            Time interval (t0, t_end) on which the problem is defined.
+            If None, no specific time interval is prescribed.
+        name : str or None
+            Name of the problem. If None, the class name is used.
+
+        Raises
+        ------
+        ValueError
+            If t_span does not contain exactly two values or
+            if t_end is not greater than t0.
+        """
 
         if t_span is not None:
             if len(t_span) != 2:
