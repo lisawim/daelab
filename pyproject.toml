@@ -13,6 +13,14 @@ authors = [
     { name = "Lisa Wimmer" },
 ]
 
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
 dependencies = [
     "numpy",
     "scipy",
