@@ -1,6 +1,6 @@
-# QDAE - DAE laboratory
+# DAELab - DAE laboratory
 
-`qdae` is an experimental framework for exploring and analyzing numerical methods for differential-algebraic equations (DAEs).
+`daelab` is an experimental framework for exploring and analyzing numerical methods for differential-algebraic equations (DAEs).
 
 The initial focus is on spectral deferred corrections (SDC) and Runge-Kutta (RK) methods, with particular emphasis on:
 
