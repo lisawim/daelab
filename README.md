@@ -1,5 +1,7 @@
 # DAELab - DAE laboratory
 
+[![codecov](https://codecov.io/gh/lisawim/daelab/graph/badge.svg?token=R6KWTR237V)](https://codecov.io/gh/lisawim/daelab)
+
 `daelab` is an experimental framework for exploring and analyzing numerical methods for differential-algebraic equations (DAEs).
 
 The initial focus is on spectral deferred corrections (SDC) and Runge-Kutta (RK) methods, with particular emphasis on:
