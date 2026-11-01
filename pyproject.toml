@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "daelab"
+version = "0.1.0"
+description = "A Python laboratory for numerical methods applied to differential-algebraic equations (DAEs)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-2-Clause"
+authors = [
+    { name = "Lisa Wimmer" },
+]
+
+dependencies = [
+    "numpy",
+    "scipy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["daelab"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
