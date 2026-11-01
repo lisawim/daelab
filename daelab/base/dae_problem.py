@@ -27,10 +27,10 @@ class DAEProblem:
             if len(t_span) != 2:
                 raise ValueError("t_span is a tuple containing two values!")
 
-            t0, tend = t_span
+            t0, t_end = t_span
 
-            if t0 >= tend:
-                raise ValueError("tend must be greater than t0!")
+            if t0 >= t_end:
+                raise ValueError("t_end must be greater than t0!")
 
         self._t_span = None if t_span is None else t_span
 
