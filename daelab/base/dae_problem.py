@@ -34,7 +34,7 @@ class DAEProblem:
 
         self._t_span = None if t_span is None else t_span
 
-        self.name = None if name is None else name
+        self.name = self.__class__.__name__ if name is None else name
 
     @property
     def t_span(self) -> tuple[float, float] | None:
