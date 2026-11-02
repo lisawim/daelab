@@ -1,0 +1,93 @@
+import pytest
+
+from daelab.base.semi_explicit_dae_problem import SemiexplicitDAEProblem
+
+
+class IncompleteSemiexplicitDAE(SemiexplicitDAEProblem):
+    """Dummy DAE problem without implementations of f and g."""
+
+
+class DummySemiexplicitDAE(SemiexplicitDAEProblem):
+    """Dummy DAE problem with implementations of f and g."""
+
+    def f(self, y, z, t):
+        return -y + z
+
+    def g(self, y, z, t):
+        return y + z - 1
+
+
+class DummySemiexplicitDAEWithExactSolution(DummySemiexplicitDAE):
+    """Dummy DAE problem with an exact solution."""
+
+    def y_exact(self, t):
+        return 1.0
+
+    def z_exact(self, t):
+        return 2.0
+
+
+class DummyMissingF(SemiexplicitDAEProblem):
+    """Dummy DAE problem without implementation of f."""
+
+    def g(self, y, z, t):
+        return y + z - 1
+
+
+class DummyMissingG(SemiexplicitDAEProblem):
+    """Dummy DAE problem without implementation of g."""
+
+    def f(self, y, z, t):
+        return -y + z
+
+
+def test_raises_type_error_without_f_and_g():
+    with pytest.raises(TypeError):
+        IncompleteSemiexplicitDAE()
+
+
+def test_abstract_f_raises_not_implemented_error_when_called():
+    problem = DummySemiexplicitDAE()
+
+    with pytest.raises(NotImplementedError, match=r"Subclasses must implement f\(y, z, t\)\."):
+        super(DummySemiexplicitDAE, problem).f(None, None, 0.0)
+
+
+def test_abstract_g_raises_not_implemented_error_when_called():
+    problem = DummySemiexplicitDAE()
+
+    with pytest.raises(NotImplementedError, match=r"Subclasses must implement g\(y, z, t\)\."):
+        super(DummySemiexplicitDAE, problem).g(None, None, 0.0)
+
+
+def test_instantiation_is_successful():
+    problem = DummySemiexplicitDAE()
+
+    assert isinstance(problem, SemiexplicitDAEProblem), "Problem was not an instance of SemiexplicitDAEProblem!"
+
+
+def test_raises_type_error_without_f():
+    with pytest.raises(TypeError):
+        DummyMissingF()
+
+
+def test_raises_type_error_without_g():
+    with pytest.raises(TypeError):
+        DummyMissingG()
+
+
+def test_raises_notimplemented_error_if_y_z_exact_not_implemented():
+    problem = DummySemiexplicitDAE()
+
+    with pytest.raises(NotImplementedError, match="This problem does not provide an exact solution for y."):
+        problem.y_exact(0.0)
+
+    with pytest.raises(NotImplementedError, match="This problem does not provide an exact solution for z."):
+        problem.z_exact(0.0)
+
+
+def test_y_z_exact_can_be_overridden_in_subclass():
+    problem = DummySemiexplicitDAEWithExactSolution()
+
+    assert problem.y_exact(0.0) == 1.0, "y_exact was not successfully overriden in subclass!"
+    assert problem.z_exact(0.0) == 2.0, "z_exact was not successfully overriden in subclass!"
