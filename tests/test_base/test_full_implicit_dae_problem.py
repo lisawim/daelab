@@ -20,24 +20,24 @@ class DummyImplicitDAEWithExactSolution(DummyImplicitDAE):
 def test_raises_not_implemented_error_during_instatiation_without_F():
     problem = DummyImplicitDAE()
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(NotImplementedError, match=r"Subclasses must implement F\(u_dot, u, t\)\."):
         super(DummyImplicitDAE, problem).F(None, None, 0.0)
 
 
 def test_instance_with_F_is_successful():
     problem = DummyImplicitDAE()
 
-    assert isinstance(problem, FullimplicitDAEProblem)
+    assert isinstance(problem, FullimplicitDAEProblem), "Problem was not an instance of FullimplicitDAEProblem!"
 
 
 def test_raises_notimplemented_error_if_u_exact_not_implemented():
     problem = DummyImplicitDAE()
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(NotImplementedError, match="This problem does not provide an exact solution."):
         problem.u_exact(0.0)
 
 
-def test_u_exact_can_be_overridden():
+def test_u_exact_can_be_overridden_in_subclass():
     problem = DummyImplicitDAEWithExactSolution()
 
     assert problem.u_exact(0.0) == 1.0
