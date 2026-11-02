@@ -2,6 +2,7 @@ class DAEProblem:
     """Base class for differential-algebraic equations problems."""
     def __init__(
         self,
+        diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
     ):
@@ -10,6 +11,8 @@ class DAEProblem:
 
         Parameters
         ----------
+        diff_index : int or None
+            Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
             Time interval (t0, t_end) on which the problem is defined.
             If None, no specific time interval is prescribed.
@@ -18,10 +21,21 @@ class DAEProblem:
 
         Raises
         ------
+        TypeError
+            If diff_index is bool or not an integer.
         ValueError
             If t_span does not contain exactly two values or
             if t_end is not greater than t0.
         """
+
+        if diff_index is not None:
+            if isinstance(diff_index, bool) or not isinstance(diff_index, int):
+                raise TypeError("diff_index must be an integer or None!")
+
+            if diff_index < 1:
+                raise ValueError("diff_index must be equal to or greater than one!")
+
+        self.diff_index = diff_index
 
         if t_span is not None:
             if len(t_span) != 2:
