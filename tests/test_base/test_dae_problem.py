@@ -15,9 +15,10 @@ def test_initialize_dae_problem_correctly():
     assert t_span == dae_problem.t_span, "t_span is not initialized correctly!"
     assert name == dae_problem.name, "name is not initialized correctly!"
 
+
 def test_errors_invalid_diff_index_is_raised_correctly():
     from daelab.base.dae_problem import DAEProblem
-    
+
     with pytest.raises(TypeError, match="diff_index must be an integer or None!"):
         DAEProblem(diff_index=True)
 
@@ -27,6 +28,7 @@ def test_errors_invalid_diff_index_is_raised_correctly():
     with pytest.raises(ValueError, match="diff_index must be equal to or greater than one!"):
         DAEProblem(diff_index=0)
 
+
 def test_value_error_invalid_t_span_is_raised_correctly():
     from daelab.base.dae_problem import DAEProblem
 
@@ -35,6 +37,7 @@ def test_value_error_invalid_t_span_is_raised_correctly():
 
     with pytest.raises(ValueError, match="t_end must be greater than t0!"):
         DAEProblem(t_span=(5.0, 2.0))
+
 
 def test_values_are_correctly_by_default():
     from daelab.base.dae_problem import DAEProblem
