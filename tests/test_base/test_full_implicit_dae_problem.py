@@ -3,10 +3,6 @@ import pytest
 from daelab.base.full_implicit_dae_problem import FullimplicitDAEProblem
 
 
-class IncompleteImplicitDAE(FullimplicitDAEProblem):
-    """Dummy DAE problem without an implementation of F."""
-
-
 class DummyImplicitDAE(FullimplicitDAEProblem):
     """Dummy DAE problem with an implementation of F."""
 
@@ -21,9 +17,11 @@ class DummyImplicitDAEWithExactSolution(DummyImplicitDAE):
         return 1.0
 
 
-def test_raises_type_error_during_instatiation_without_F():
-    with pytest.raises(TypeError):
-        IncompleteImplicitDAE()
+def test_raises_not_implemented_error_during_instatiation_without_F():
+    problem = DummyImplicitDAE()
+
+    with pytest.raises(NotImplementedError):
+        super(DummyImplicitDAE, problem).F(None, None, 0.0)
 
 
 def test_instance_with_F_is_successful():

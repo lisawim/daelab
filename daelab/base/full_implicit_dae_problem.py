@@ -8,7 +8,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
     @abstractmethod
     def F(self, u_dot, u, t):
         """Evaluate the DAE function `F(u_dot, u, t) = 0`"""
-        pass
+        raise NotImplementedError("Subclasses must implement F(u_dot, u, t).")
 
     def u_exact(self, t):
         """Return the exact solution u(t), if available."""
