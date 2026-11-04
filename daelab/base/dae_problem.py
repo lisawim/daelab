@@ -53,27 +53,27 @@ class DAEProblem:
     @staticmethod
     def validate_nvars(nvars: tuple[tuple[int, ...], ...]):
         if not isinstance(nvars, tuple):
-            raise TypeError(f"nvars must be a tuple.")
+            raise TypeError("nvars must be a tuple.")
 
         if not nvars:
-            raise ValueError(f"nvars must not be empty.")
+            raise ValueError("nvars must not be empty.")
 
         for dimensions in nvars:
             if not isinstance(dimensions, tuple):
                 raise TypeError(
-                    f"Each entry of nvars must be a tuple."
+                    "Each entry of nvars must be a tuple."
                 )
 
             if not dimensions:
                 raise ValueError(
-                    f"Each entry of nvars must not be empty."
+                    "Each entry of nvars must not be empty."
                 )
 
             if any(
                 not isinstance(ndim, int) or ndim < 1 for ndim in dimensions
             ):
                 raise ValueError(
-                    f"nvars must contain only positive integers."
+                    "nvars must contain only positive integers."
                 )
 
     @property

@@ -16,11 +16,63 @@ def test_initialize_dae_problem_correctly():
     assert name == dae_problem.name, "name is not initialized correctly!"
 
 
-# def test_nvars_as_integer_is_transformed_into_correct_shape():
-#     nvars = 1
-#     dae_problem = DAEProblem(nvars=nvars)
+def test_validate_nvars_accepts_valid_input():
+    DAEProblem.validate_nvars(((1,), (256,)))
 
-#     assert dae_problem.nvars == ((nvars,),), "nvars is not transformed into the correct shape!"
+
+def test_validate_nvars_rejects_invalid_input():
+    with pytest.raises(ValueError, match="nvars must contain only positive integers."):
+        DAEProblem.validate_nvars(((0,), (0,)))
+
+
+def test_validate_nvars_should_raise_type_error_if_nvars_is_not_a_tuple():
+    with pytest.raises(TypeError, match="nvars must be a tuple."):
+        DAEProblem.validate_nvars(nvars=42)
+
+
+def test_validate_nvars_should_raise_value_error_if_nvars_is_empty_tuple():
+    with pytest.raises(ValueError, match="nvars must not be empty."):
+        DAEProblem.validate_nvars(nvars=())
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        (1, (1, 64), (1,)),
+        ((1,64), 1, (128, 128, 64)),
+        ((64, 64, 128), (64, 64), 1),
+    ],
+)
+def test_validate_nvars_should_raise_type_error_if_single_dimension_is_not_a_tuple(nvars):
+    with pytest.raises(TypeError, match="Each entry of nvars must be a tuple."):
+        DAEProblem.validate_nvars(nvars=nvars)
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        ((), (16, 16), (256,)),
+        ((512, 256), (), (128,)),
+        ((64,), (64, 64), ()),
+    ],
+)
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_empty_tuple(nvars):
+    with pytest.raises(ValueError, match="Each entry of nvars must not be empty."):
+        DAEProblem.validate_nvars(nvars=nvars)
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        ((4, 128, -1), (1, 2), (1,)),
+        ((1,), (128, -1), (1,)),
+        ((1,), (1,), (128, 64.0)),
+        ((1,), (1,), (64, False)),
+    ],
+)
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive_integer(nvars):
+    with pytest.raises(ValueError, match="nvars must contain only positive integers."):
+        DAEProblem.validate_nvars(nvars=nvars)
 
 
 def test_errors_invalid_diff_index_is_raised_correctly():

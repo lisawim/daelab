@@ -47,6 +47,14 @@ def test_attribute_is_semiexplicit_dae_should_set_to_True(nvars=((1,),)):
     assert problem.is_semiexplicit_dae == True, "is_semiexplicit_dae is not set to True!"
 
 
+def test_nvars_attributes_as_integer_is_transformed_into_correct_shape():
+    nvars = 1
+    dae_problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
+
+    assert dae_problem.nvars_diff == ((nvars,),), "nvars_diff is not transformed into the correct shape!"
+    assert dae_problem.nvars_alg == ((nvars,),), "nvars_alg is not transformed into the correct shape!"
+
+
 def test_raises_type_error_without_f_and_g(nvars=((1,),)):
     with pytest.raises(TypeError):
         IncompleteSemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
