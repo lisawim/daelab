@@ -1,9 +1,9 @@
 import pytest
 
+from daelab.base.dae_problem import DAEProblem
+
 
 def test_initialize_dae_problem_correctly():
-    from daelab.base.dae_problem import DAEProblem
-
     diff_index = 1
     t_span = (0.0, 1.0)
     name = "DAE"
@@ -16,9 +16,66 @@ def test_initialize_dae_problem_correctly():
     assert name == dae_problem.name, "name is not initialized correctly!"
 
 
-def test_errors_invalid_diff_index_is_raised_correctly():
-    from daelab.base.dae_problem import DAEProblem
+def test_validate_nvars_accepts_valid_input():
+    DAEProblem.validate_nvars(((1,), (256,)))
 
+
+def test_validate_nvars_rejects_invalid_input():
+    with pytest.raises(ValueError, match="nvars must contain only positive integers."):
+        DAEProblem.validate_nvars(((0,), (0,)))
+
+
+def test_validate_nvars_should_raise_type_error_if_nvars_is_not_a_tuple():
+    with pytest.raises(TypeError, match="nvars must be a tuple."):
+        DAEProblem.validate_nvars(nvars=42)
+
+
+def test_validate_nvars_should_raise_value_error_if_nvars_is_empty_tuple():
+    with pytest.raises(ValueError, match="nvars must not be empty."):
+        DAEProblem.validate_nvars(nvars=())
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        (1, (1, 64), (1,)),
+        ((1,64), 1, (128, 128, 64)),
+        ((64, 64, 128), (64, 64), 1),
+    ],
+)
+def test_validate_nvars_should_raise_type_error_if_single_dimension_is_not_a_tuple(nvars):
+    with pytest.raises(TypeError, match="Each entry of nvars must be a tuple."):
+        DAEProblem.validate_nvars(nvars=nvars)
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        ((), (16, 16), (256,)),
+        ((512, 256), (), (128,)),
+        ((64,), (64, 64), ()),
+    ],
+)
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_empty_tuple(nvars):
+    with pytest.raises(ValueError, match="Each entry of nvars must not be empty."):
+        DAEProblem.validate_nvars(nvars=nvars)
+
+
+@pytest.mark.parametrize(
+    "nvars",
+    [
+        ((4, 128, -1), (1, 2), (1,)),
+        ((1,), (128, -1), (1,)),
+        ((1,), (1,), (128, 64.0)),
+        ((1,), (1,), (64, False)),
+    ],
+)
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive_integer(nvars):
+    with pytest.raises(ValueError, match="nvars must contain only positive integers."):
+        DAEProblem.validate_nvars(nvars=nvars)
+
+
+def test_errors_invalid_diff_index_is_raised_correctly():
     with pytest.raises(TypeError, match="diff_index must be an integer or None!"):
         DAEProblem(diff_index=True)
 
@@ -30,8 +87,6 @@ def test_errors_invalid_diff_index_is_raised_correctly():
 
 
 def test_value_error_invalid_t_span_is_raised_correctly():
-    from daelab.base.dae_problem import DAEProblem
-
     with pytest.raises(ValueError, match="t_span is a tuple containing two values!"):
         DAEProblem(t_span=(1.0, 5.0, 2.0))
 
@@ -40,8 +95,6 @@ def test_value_error_invalid_t_span_is_raised_correctly():
 
 
 def test_values_are_correctly_by_default():
-    from daelab.base.dae_problem import DAEProblem
-
     dae_problem = DAEProblem()
 
     assert dae_problem.diff_index == None, "diff_index is not initialized by default!"
