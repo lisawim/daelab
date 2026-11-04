@@ -1,9 +1,9 @@
 import pytest
 
+from daelab.base.dae_problem import DAEProblem
+
 
 def test_initialize_dae_problem_correctly():
-    from daelab.base.dae_problem import DAEProblem
-
     diff_index = 1
     t_span = (0.0, 1.0)
     name = "DAE"
@@ -16,9 +16,14 @@ def test_initialize_dae_problem_correctly():
     assert name == dae_problem.name, "name is not initialized correctly!"
 
 
-def test_errors_invalid_diff_index_is_raised_correctly():
-    from daelab.base.dae_problem import DAEProblem
+# def test_nvars_as_integer_is_transformed_into_correct_shape():
+#     nvars = 1
+#     dae_problem = DAEProblem(nvars=nvars)
 
+#     assert dae_problem.nvars == ((nvars,),), "nvars is not transformed into the correct shape!"
+
+
+def test_errors_invalid_diff_index_is_raised_correctly():
     with pytest.raises(TypeError, match="diff_index must be an integer or None!"):
         DAEProblem(diff_index=True)
 
@@ -30,8 +35,6 @@ def test_errors_invalid_diff_index_is_raised_correctly():
 
 
 def test_value_error_invalid_t_span_is_raised_correctly():
-    from daelab.base.dae_problem import DAEProblem
-
     with pytest.raises(ValueError, match="t_span is a tuple containing two values!"):
         DAEProblem(t_span=(1.0, 5.0, 2.0))
 
@@ -40,8 +43,6 @@ def test_value_error_invalid_t_span_is_raised_correctly():
 
 
 def test_values_are_correctly_by_default():
-    from daelab.base.dae_problem import DAEProblem
-
     dae_problem = DAEProblem()
 
     assert dae_problem.diff_index == None, "diff_index is not initialized by default!"

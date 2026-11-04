@@ -4,6 +4,58 @@ from daelab.base.dae_problem import DAEProblem
 
 class SemiexplicitDAEProblem(DAEProblem, ABC):
     """Base class for semi-explicit DAE Problems."""
+    def __init__(
+        self,
+        nvars_diff: tuple[tuple[int, ...], ...],
+        nvars_alg: tuple[tuple[int, ...], ...],
+        diff_index: int | None = None,
+        t_span: tuple[float, float] | None = None,
+        name: str | None = None,
+    ):
+        """
+        Initializes a semi-explicit DAE Problem.
+
+        Parameters
+        ----------
+        nvars_diff : tuple of tuples of integers
+            Number of differential variables and spatial dimensions.
+        nvars_alg : tuple of tuples of integers
+            Number of algebraic variables and spatial dimensions.
+        diff_index : int or None
+            Differentiation index of the DAE problem.
+        t_span : tuple[float, float] or None
+            Time interval (t0, t_end) on which the problem is defined.
+            If None, no specific time interval is prescribed.
+        name : str or None
+            Name of the problem. If None, the class name is used.
+
+        Raises
+        ------
+        TypeError
+            If diff_index is bool or not an integer.
+        ValueError
+            If t_span does not contain exactly two values or
+            if t_end is not greater than t0.
+        """
+        super().__init__(
+            diff_index=diff_index,
+            t_span=t_span,
+            name=name,
+        )
+
+        self.is_semiexplicit_dae = True
+
+        if isinstance(nvars_diff, int):
+            nvars_diff = ((nvars_diff,),)
+
+        if isinstance(nvars_alg, int):
+            nvars_alg = ((nvars_alg,),)
+
+        self.validate_nvars(nvars=nvars_diff)
+        self.nvars_diff = nvars_diff
+
+        self.validate_nvars(nvars=nvars_alg)
+        self.nvars_alg = nvars_alg
 
     @abstractmethod
     def f(self, y, z, t):
