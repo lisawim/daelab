@@ -55,6 +55,15 @@ def test_nvars_attributes_as_integer_is_transformed_into_correct_shape():
     assert dae_problem.nvars_alg == (nvars,), "nvars_alg is not transformed into the correct shape!"
 
 
+def test_should_raise_value_error_if_differential_algebraic_variables_have_differential_spatial_dimensions():
+    nvars_diff = (2, 128, 256)
+    nvars_alg = (1, 128, 128)
+
+    err_msg = "Differential and algebraic variables must have the same spatial dimensions"
+    with pytest.raises(ValueError, match=err_msg):
+        DummySemiexplicitDAE(nvars_diff=nvars_diff, nvars_alg=nvars_alg)
+
+
 def test_raises_type_error_without_f_and_g(nvars=(1,)):
     with pytest.raises(TypeError):
         IncompleteSemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
