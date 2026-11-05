@@ -51,30 +51,18 @@ class DAEProblem:
         self.name = self.__class__.__name__ if name is None else name
 
     @staticmethod
-    def validate_nvars(nvars: tuple[tuple[int, ...], ...]):
+    def validate_nvars(nvars: tuple[int, ...]):
+        """Validates that nvars is of correct shape and entries."""
         if not isinstance(nvars, tuple):
             raise TypeError("nvars must be a tuple.")
 
         if not nvars:
             raise ValueError("nvars must not be empty.")
 
-        for dimensions in nvars:
-            if not isinstance(dimensions, tuple):
-                raise TypeError(
-                    "Each entry of nvars must be a tuple."
-                )
-
-            if not dimensions:
-                raise ValueError(
-                    "Each entry of nvars must not be empty."
-                )
-
-            if any(
-                not isinstance(ndim, int) or ndim < 1 for ndim in dimensions
-            ):
-                raise ValueError(
-                    "nvars must contain only positive integers."
-                )
+        if any(not isinstance(n, int) or n < 1 for n in nvars):
+            raise ValueError(
+                "nvars must contain only positive integers."
+            )
 
     @property
     def t_span(self) -> tuple[float, float] | None:

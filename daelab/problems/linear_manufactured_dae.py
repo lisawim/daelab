@@ -6,8 +6,8 @@ from daelab.base.semi_explicit_dae_problem import SemiexplicitDAEProblem
 class LinearManufacturedDAE(SemiexplicitDAEProblem):
     def __init__(
         self,
-        nvars_diff=((1,),),
-        nvars_alg=((1,),),
+        nvars_diff=(1,),
+        nvars_alg=(1,),
         diff_index=1,
         t_span=(0.0, 1.0),
         name="Linear manufactured DAE",

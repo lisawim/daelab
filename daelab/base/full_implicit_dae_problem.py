@@ -6,7 +6,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
     """Base class for fully-implicit DAE Problems."""
     def __init__(
         self,
-        nvars: tuple[tuple[int, ...], ...],
+        nvars: tuple[int, ...],
         diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
@@ -16,12 +16,12 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
 
         Parameters
         ----------
-        nvars : tuple of tuples of integers
-            Number of variables and spatial dimensions. For example,
-            for nvars = ((n_x, n_y, n_z), (n_x, n_y), (n_x,)), we have len(nvars) = 3
-            unknowns. The first unknown has three different spatial directions with
-            n_x DoF, n_y DoF and n_z DoF, the second one has n_x DoF and n_y DoF, and
-            the third one has n_z DoF.
+        nvars : tuple of integers
+            Number of unknowns and spatial dimensions. The first entry is the number
+            of unknowns, and the remaining entries are the number of spatial degrees
+            of freedom in each dimension shared by all unknowns. For example, 
+            for nvars = (3, n_x, n_y), the problem has three unknowns, with n_x degrees
+            of freedom in x-direction and n_y degrees of freedom in y_direction.
         diff_index : int or None
             Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
@@ -48,7 +48,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
         self.is_semiexplicit_dae = False
 
         if isinstance(nvars, int):
-            nvars = ((nvars,),)
+            nvars = (nvars,)
 
         self.validate_nvars(nvars)
         self.nvars = nvars
