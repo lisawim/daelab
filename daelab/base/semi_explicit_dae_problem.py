@@ -6,8 +6,8 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     """Base class for semi-explicit DAE Problems."""
     def __init__(
         self,
-        nvars_diff: tuple[tuple[int, ...], ...],
-        nvars_alg: tuple[tuple[int, ...], ...],
+        nvars_diff: tuple[int, ...],
+        nvars_alg: tuple[int, ...],
         diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
@@ -17,10 +17,10 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Parameters
         ----------
-        nvars_diff : tuple of tuples of integers
-            Number of differential variables and spatial dimensions.
-        nvars_alg : tuple of tuples of integers
-            Number of algebraic variables and spatial dimensions.
+        nvars_diff : tuple of integers
+            Number of unknown differential variables and spatial dimensions.
+        nvars_alg : tuple of integers
+            Number of unknown algebraic variables and spatial dimensions.
         diff_index : int or None
             Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
@@ -46,10 +46,15 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         self.is_semiexplicit_dae = True
 
         if isinstance(nvars_diff, int):
-            nvars_diff = ((nvars_diff,),)
+            nvars_diff = (nvars_diff,)
 
         if isinstance(nvars_alg, int):
-            nvars_alg = ((nvars_alg,),)
+            nvars_alg = (nvars_alg,)
+
+        if nvars_diff[1:] != nvars_alg[1:]:
+            raise ValueError(
+                "Differential and algebraic variables must have the same spatial dimensions"
+            )
 
         self.validate_nvars(nvars=nvars_diff)
         self.nvars_diff = nvars_diff
