@@ -118,6 +118,13 @@ def test_binary_should_raise_type_error_if_datatypes_are_different():
         con._binary(u, np.add)
 
 
+def test_nvars_integers_are_converted_into_tuples():
+    u = SemiexplicitSolution(num_nodes=2, nvars_diff=2, nvars_alg=3)
+
+    assert isinstance(u.nvars_diff, tuple)
+    assert isinstance(u.nvars_alg, tuple)
+
+
 def test_should_raise_value_error_if_spatial_dimensions_are_different():
     with pytest.raises(
         ValueError,

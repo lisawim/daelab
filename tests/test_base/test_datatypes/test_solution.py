@@ -52,6 +52,14 @@ def test_vars_are_assigned_correctly_in_solution():
     assert isinstance(u, ArithmeticMethods)
 
 
+def test_nvars_integer_is_converted_into_tuple():
+    num_nodes = 4
+    nvars = 2
+    u = Solution(num_nodes=num_nodes, nvars=nvars)
+
+    assert isinstance(u.nvars, tuple)
+
+
 @pytest.mark.parametrize("num_nodes", [2, 3, 4, 5])
 def test_len_method_should_return_num_nodes(num_nodes):
     nvars = (1, 64, 64)

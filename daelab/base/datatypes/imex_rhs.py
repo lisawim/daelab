@@ -1,5 +1,6 @@
 import numpy as np
 
+from daelab.base.dae_problem import DAEProblem
 from daelab.base.datatypes.semiexplicit_solution import PartitionedContainer
 from daelab.base.datatypes.rhs import RHS
 
@@ -67,6 +68,12 @@ class IMEXRHS(PartitionedContainer):
 
     def __init__(self, num_nodes, nvars, dtype=float):
         """Initialization routine."""
+
+        if isinstance(nvars, int):
+            nvars = (nvars,)
+
+        DAEProblem.validate_nvars(nvars)
+
         self.num_nodes = num_nodes
         self.nvars = nvars
         self.dtype = dtype

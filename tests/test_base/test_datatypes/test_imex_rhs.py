@@ -4,6 +4,14 @@ from daelab.base.datatypes.imex_rhs import IMEXRHS
 from daelab.base.datatypes.rhs import RHS
 
 
+def test_nvars_integer_is_converted_into_tuple():
+    num_nodes = 4
+    nvars = 3
+    imex_rhs = IMEXRHS(num_nodes=num_nodes, nvars=nvars)
+
+    assert isinstance(imex_rhs.nvars, tuple)
+
+
 def test_vars_are_assigned_correctly_in_IMEXRHS():
     num_nodes = 4
     nvars = (128, 128)

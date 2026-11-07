@@ -1,6 +1,8 @@
 import numpy as np
 import operator
 
+from daelab.base.dae_problem import DAEProblem
+
 
 class ArithmeticMethods:
     """
@@ -138,6 +140,12 @@ class Solution(ArithmeticMethods):
 
     def __init__(self, num_nodes, nvars, dtype=float):
         """Initialization routine."""
+
+        if isinstance(nvars, int):
+            nvars = (nvars,)
+
+        DAEProblem.validate_nvars(nvars)
+
         self.num_nodes = num_nodes
         self.nvars = nvars
         self.dtype = dtype
