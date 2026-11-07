@@ -260,7 +260,7 @@ class SemiexplicitSolution(PartitionedContainer):
 
     def __init__(self, num_nodes, nvars_diff, nvars_alg, dtype=float):
         """Initialization routine."""
-        if nvars_diff[1:] != nvars_alg[1:]:
+        if len(nvars_diff) == len(nvars_alg) > 1 and nvars_diff[1:] != nvars_alg[1:]:
             raise ValueError(
                 "nvars_diff and nvars_alg must have the same spatial dimensions."
             )
