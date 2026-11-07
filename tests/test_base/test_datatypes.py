@@ -60,7 +60,7 @@ def test_vars_are_assigned_correctly_in_solution():
     assert isinstance(u, ArithmeticMethods)
 
 
-@pytest.mark.parametrize("num_nodes",[2, 3, 4, 5])
+@pytest.mark.parametrize("num_nodes", [2, 3, 4, 5])
 def test_len_method_should_return_num_nodes(num_nodes):
     nvars = (1, 64, 64)
     u = Solution(num_nodes=num_nodes, nvars=nvars)
@@ -156,7 +156,7 @@ def test_making_a_copy_gives_copied_instance_with_equal_attributes_to_original()
     u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=dtype)
 
     u_copy = u.copy()
-    assert type(u_copy) == Solution
+    assert isinstance(u_copy, Solution)
     assert u_copy.num_nodes == u.num_nodes
     assert u_copy.nvars == u.nvars
     assert u_copy.dtype == u.dtype
@@ -177,20 +177,20 @@ def test_apply_matrix_is_applied_to_values_at_all_nodes():
     res = u.apply_matrix(Q)
 
     for m in range(u.num_nodes):
-        expected = sum(
-            Q[m, k] * u._comps[k] for k in range(u.num_nodes)
-        )
+        expected = sum(Q[m, k] * u._comps[k] for k in range(u.num_nodes))
 
         assert np.array_equal(res[m], expected)
 
-    assert type(res) == Solution
+    assert isinstance(res, Solution)
 
 
 def test_solution_binary_should_raise_value_error_if_num_nodes_are_different():
     u1 = Solution(num_nodes=3, nvars=(2, 2))
     other = Solution(num_nodes=4, nvars=(2, 2))
 
-    with pytest.raises(ValueError, match="Operands must have the same num_nodes and nvars!"):
+    with pytest.raises(
+        ValueError, match="Operands must have the same num_nodes and nvars!"
+    ):
         u1._binary(other, np.add)
 
 
@@ -198,7 +198,9 @@ def test_solution_binary_should_raise_type_error_if_nvars_are_different():
     u1 = Solution(num_nodes=3, nvars=(2, 2))
     other = Solution(num_nodes=3, nvars=(4, 64))
 
-    with pytest.raises(ValueError, match="Operands must have the same num_nodes and nvars!"):
+    with pytest.raises(
+        ValueError, match="Operands must have the same num_nodes and nvars!"
+    ):
         u1._binary(other, np.add)
 
 
@@ -287,6 +289,7 @@ def test_copy_creates_independent_container():
     assert np.array_equal(con_copy.comp1, con.comp1)
     assert np.array_equal(con_copy.comp2, con.comp2)
 
+
 def test_binary_adds_two_containers():
     con1 = DummyContainer()
     con2 = DummyContainer()
@@ -313,7 +316,9 @@ def test_binary_should_raise_value_error_if_components_are_different():
     other_con.u = np.zeros((3, 1))
     other_con.z = np.zeros((2, 2))
 
-    with pytest.raises(ValueError, match="Operands must have the same parts and num_nodes."):
+    with pytest.raises(
+        ValueError, match="Operands must have the same parts and num_nodes."
+    ):
         con1._binary(other_con, np.add)
 
 
@@ -323,7 +328,9 @@ def test_binary_should_raise_value_error_if_num_nodes_are_different():
 
     other_con.num_nodes = 4
 
-    with pytest.raises(ValueError, match="Operands must have the same parts and num_nodes."):
+    with pytest.raises(
+        ValueError, match="Operands must have the same parts and num_nodes."
+    ):
         con1._binary(other_con, np.add)
 
 
@@ -331,8 +338,11 @@ def test_binary_should_raise_type_error_if_datatypes_are_different():
     con = DummyContainer()
     u = Solution(num_nodes=3, nvars=(1,))
 
-    with pytest.raises(TypeError, match=f"Cannot combine DummyContainer with a Solution."):
+    with pytest.raises(
+        TypeError, match="Cannot combine DummyContainer with a Solution."
+    ):
         con._binary(u, np.add)
+
 
 # Wieso ist das Ergebnis nicht gleich Q @ u?
 def test_apply_matrix_is_applied_to_all_components():
@@ -344,28 +354,29 @@ def test_apply_matrix_is_applied_to_all_components():
         u.diff[m] = (m + 3) * np.ones(u.nvars_diff)
         u.alg[m] = (m + 5) * np.ones(u.nvars_alg)
 
-    
     res = u.apply_matrix(Q)
 
     for m in range(u.num_nodes):
-        expected_diff = sum(
-            Q[m, k] * u.diff[k] for k in range(u.num_nodes)
-        )
-        expected_alg = sum(
-            Q[m, k] * u.alg[k] for k in range(u.num_nodes)
-        )
+        expected_diff = sum(Q[m, k] * u.diff[k] for k in range(u.num_nodes))
+        expected_alg = sum(Q[m, k] * u.alg[k] for k in range(u.num_nodes))
 
         assert np.array_equal(res.diff[m], expected_diff)
         assert np.array_equal(res.alg[m], expected_alg)
 
 
-def test_function_repr_returns_correct_output():
+def test_function_repr_returns_correct_output_SemiexplicitSolution():
     num_nodes = 3
     nvars = (128, 128, 256)
     dtype = float
-    u = SemiexplicitSolution(num_nodes=num_nodes, nvars_diff=nvars, nvars_alg=nvars, dtype=dtype)
+    u = SemiexplicitSolution(
+        num_nodes=num_nodes, nvars_diff=nvars, nvars_alg=nvars, dtype=dtype
+    )
 
-    assert str(u) == f"SemiexplicitSolution({num_nodes=}, nvars_diff={nvars}, nvars_alg={nvars}, dtype={np.dtype(dtype)})"
+    assert (
+        str(u)
+        == f"SemiexplicitSolution({num_nodes=}, "
+        f"nvars_diff={nvars}, nvars_alg={nvars}, dtype={np.dtype(dtype)})"
+    )
 
 
 def test_RHS_class_is_of_type_Solution():
@@ -381,8 +392,8 @@ def test_vars_are_assigned_correctly_in_IMEXRHS():
 
     assert imex_rhs.num_nodes == num_nodes
     assert imex_rhs.nvars == nvars
-    assert type(imex_rhs.impl) == RHS
-    assert type(imex_rhs.expl) == RHS
+    assert isinstance(imex_rhs.impl, RHS)
+    assert isinstance(imex_rhs.expl, RHS)
 
 
 def test_full_rhs_should_return_the_complete_rhs():
@@ -406,7 +417,7 @@ def test_function_repr_returns_correct_output_IMEXRHS():
     nvars = (128, 128)
     dtype = float
     imex_rhs = IMEXRHS(num_nodes=num_nodes, nvars=nvars, dtype=dtype)
-    
+
     assert str(imex_rhs) == f"IMEXRHS({num_nodes=}, {nvars=}, dtype={np.dtype(dtype)})"
 
 
@@ -428,8 +439,8 @@ def test_vars_are_assigned_correctly_in_SemiexplicitRHS():
     assert semiexplicit_rhs.nvars_alg == nvars
     assert semiexplicit_rhs.dtype == dtype
     assert semiexplicit_rhs.imex_diff == imex_diff
-    assert type(semiexplicit_rhs.diff) == RHS
-    assert type(semiexplicit_rhs.alg) == RHS
+    assert isinstance(semiexplicit_rhs.diff, RHS)
+    assert isinstance(semiexplicit_rhs.alg, RHS)
 
 
 def test_SemiExplicitRHS_can_use_imex_splitting():
@@ -445,8 +456,8 @@ def test_SemiExplicitRHS_can_use_imex_splitting():
         imex_diff=imex_diff,
     )
 
-    assert type(se_imex_rhs.diff) == IMEXRHS
-    assert type(se_imex_rhs.alg) == RHS
+    assert isinstance(se_imex_rhs.diff, IMEXRHS)
+    assert isinstance(se_imex_rhs.alg, RHS)
 
     se_imex_rhs.diff.impl[1] = 2.5 * np.ones(nvars)
     se_imex_rhs.diff.expl[1] = 6 * np.ones(nvars)
@@ -455,13 +466,10 @@ def test_SemiExplicitRHS_can_use_imex_splitting():
     se_imex_rhs.diff.expl[2] = 0.33 * np.ones(nvars)
 
     assert np.array_equal(
-        se_imex_rhs.diff.full_rhs[1], se_imex_rhs.diff.impl[1] + se_imex_rhs.diff.expl[1]
+        se_imex_rhs.diff.full_rhs[1],
+        se_imex_rhs.diff.impl[1] + se_imex_rhs.diff.expl[1],
     )
     assert np.array_equal(
-        se_imex_rhs.diff.full_rhs[2], se_imex_rhs.diff.impl[2] + se_imex_rhs.diff.expl[2]
+        se_imex_rhs.diff.full_rhs[2],
+        se_imex_rhs.diff.impl[2] + se_imex_rhs.diff.expl[2],
     )
-
-
-
-
-
