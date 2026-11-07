@@ -4,6 +4,7 @@ from daelab.base.dae_problem import DAEProblem
 
 class SemiexplicitDAEProblem(DAEProblem, ABC):
     """Base class for semi-explicit DAE Problems."""
+
     def __init__(
         self,
         nvars_diff: tuple[int, ...],

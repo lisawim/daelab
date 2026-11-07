@@ -9,7 +9,9 @@ def test_initialize_dae_problem_correctly():
     name = "DAE"
     dae_problem = DAEProblem(diff_index=diff_index, t_span=t_span, name=name)
 
-    assert dae_problem.diff_index == diff_index, "diff_index is not intialized correctly!"
+    assert dae_problem.diff_index == diff_index, (
+        "diff_index is not intialized correctly!"
+    )
     assert dae_problem.t0 == t_span[0], "t_span is not initialized correctly!"
     assert dae_problem.t_end == t_span[1], "t_span is not initialized correctly!"
     assert t_span == dae_problem.t_span, "t_span is not initialized correctly!"
@@ -43,7 +45,9 @@ def test_validate_nvars_should_raise_value_error_if_nvars_is_empty_tuple():
         (3, 256, -1),
     ],
 )
-def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive_integer(nvars):
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive_integer(
+    nvars,
+):
     with pytest.raises(ValueError, match="nvars must contain only positive integers."):
         DAEProblem.validate_nvars(nvars=nvars)
 
@@ -55,7 +59,9 @@ def test_errors_invalid_diff_index_is_raised_correctly():
     with pytest.raises(TypeError, match="diff_index must be an integer or None!"):
         DAEProblem(diff_index=1.0)
 
-    with pytest.raises(ValueError, match="diff_index must be equal to or greater than one!"):
+    with pytest.raises(
+        ValueError, match="diff_index must be equal to or greater than one!"
+    ):
         DAEProblem(diff_index=0)
 
 

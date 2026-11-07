@@ -4,6 +4,7 @@ from daelab.base.dae_problem import DAEProblem
 
 class FullimplicitDAEProblem(DAEProblem, ABC):
     """Base class for fully-implicit DAE Problems."""
+
     def __init__(
         self,
         nvars: tuple[int, ...],
@@ -19,7 +20,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
         nvars : tuple of integers
             Number of unknowns and spatial dimensions. The first entry is the number
             of unknowns, and the remaining entries are the number of spatial degrees
-            of freedom in each dimension shared by all unknowns. For example, 
+            of freedom in each dimension shared by all unknowns. For example,
             for nvars = (3, n_x, n_y), the problem has three unknowns, with n_x degrees
             of freedom in x-direction and n_y degrees of freedom in y_direction.
         diff_index : int or None
@@ -60,6 +61,4 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
 
     def u_exact(self, t):
         """Return the exact solution u(t), if available."""
-        raise NotImplementedError(
-            "This problem does not provide an exact solution."
-        )
+        raise NotImplementedError("This problem does not provide an exact solution.")
