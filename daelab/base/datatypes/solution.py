@@ -1,7 +1,7 @@
 import numpy as np
 import operator
 
-from daelab.base.dae_problem import DAEProblem
+from daelab.base.problems.dae_problem import DAEProblem
 
 
 class ArithmeticMethods:

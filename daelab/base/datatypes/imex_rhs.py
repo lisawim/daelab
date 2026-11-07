@@ -1,6 +1,6 @@
 import numpy as np
 
-from daelab.base.dae_problem import DAEProblem
+from daelab.base.problems.dae_problem import DAEProblem
 from daelab.base.datatypes.semiexplicit_solution import PartitionedContainer
 from daelab.base.datatypes.rhs import RHS
 
