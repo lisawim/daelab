@@ -118,6 +118,14 @@ def test_binary_should_raise_type_error_if_datatypes_are_different():
         con._binary(u, np.add)
 
 
+def test_should_raise_value_error_if_spatial_dimensions_are_different():
+    with pytest.raises(
+        ValueError,
+        match="nvars_diff and nvars_alg must have the same spatial dimensions.",
+    ):
+        SemiexplicitSolution(num_nodes=2, nvars_diff=(2, 64), nvars_alg=(2, 128))
+
+
 # Wieso ist das Ergebnis nicht gleich Q @ u?
 def test_apply_matrix_is_applied_to_all_components():
     u = SemiexplicitSolution(num_nodes=2, nvars_diff=(2, 2), nvars_alg=(2, 2))
