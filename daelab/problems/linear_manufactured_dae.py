@@ -23,7 +23,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
     def f(self, y, z, t):
         """Evaluate the differential equation `f(y, z, t)`."""
         return -2 * y + z
-    
+
     def g(self, y, z, t):
         """Evaluate the algebraic equation `g(y, z, t)`."""
         return -2 * y - z

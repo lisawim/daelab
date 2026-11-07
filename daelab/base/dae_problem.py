@@ -1,5 +1,6 @@
 class DAEProblem:
     """Base class for differential-algebraic equations problems."""
+
     def __init__(
         self,
         diff_index: int | None = None,
@@ -60,9 +61,7 @@ class DAEProblem:
             raise ValueError("nvars must not be empty.")
 
         if any(not isinstance(n, int) or n < 1 for n in nvars):
-            raise ValueError(
-                "nvars must contain only positive integers."
-            )
+            raise ValueError("nvars must contain only positive integers.")
 
     @property
     def t_span(self) -> tuple[float, float] | None:
