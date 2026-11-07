@@ -20,9 +20,7 @@ class DummyImplicitDAEWithExactSolution(DummyImplicitDAE):
 def test_attribute_is_semiexplicit_dae_should_set_to_False(nvars=(1,)):
     problem = DummyImplicitDAE(nvars=nvars)
 
-    assert problem.is_semiexplicit_dae == False, (
-        "is_semiexplicit_dae is not set to False!"
-    )
+    assert not problem.is_semiexplicit_dae, "is_semiexplicit_dae is not set to False!"
 
 
 def test_nvars_as_integer_is_transformed_into_correct_shape():

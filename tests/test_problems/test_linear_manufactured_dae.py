@@ -70,5 +70,5 @@ def test_exact_solution_is_consistent_with_dae(t):
 
     y_dot = -4 * np.exp(-4 * t)
 
-    # Consistency is checked for y_dot; consistency for g is already checked above.
+    # Consistency checked for y_dot; consistency for g is already checked above
     assert y_dot == problem.f(y, z, t), "y_dot does not match with the rhs f!"

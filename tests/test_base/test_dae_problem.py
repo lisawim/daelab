@@ -45,7 +45,7 @@ def test_validate_nvars_should_raise_value_error_if_nvars_is_empty_tuple():
         (3, 256, -1),
     ],
 )
-def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive_integer(
+def test_validate_nvars_should_raise_value_error_if_single_dimension_is_nonpositive(
     nvars,
 ):
     with pytest.raises(ValueError, match="nvars must contain only positive integers."):
@@ -76,8 +76,8 @@ def test_value_error_invalid_t_span_is_raised_correctly():
 def test_values_are_correctly_by_default():
     dae_problem = DAEProblem()
 
-    assert dae_problem.diff_index == None, "diff_index is not initialized by default!"
+    assert dae_problem.diff_index is None, "diff_index is not initialized by default!"
     assert dae_problem.name == "DAEProblem", "Name is not initialized by default!"
-    assert dae_problem.t0 == None, "t0 is not initialized by default!"
-    assert dae_problem.t_end == None, "t_end is not initialized by default!"
-    assert dae_problem.t_span == None, "t_span is not initialized by default!"
+    assert dae_problem.t0 is None, "t0 is not initialized by default!"
+    assert dae_problem.t_end is None, "t_end is not initialized by default!"
+    assert dae_problem.t_span is None, "t_span is not initialized by default!"

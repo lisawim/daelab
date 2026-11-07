@@ -44,9 +44,7 @@ class DummyMissingG(SemiexplicitDAEProblem):
 def test_attribute_is_semiexplicit_dae_should_set_to_True(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
-    assert problem.is_semiexplicit_dae == True, (
-        "is_semiexplicit_dae is not set to True!"
-    )
+    assert problem.is_semiexplicit_dae, "is_semiexplicit_dae is not set to True!"
 
 
 def test_nvars_attributes_as_integer_is_transformed_into_correct_shape():
@@ -61,7 +59,7 @@ def test_nvars_attributes_as_integer_is_transformed_into_correct_shape():
     )
 
 
-def test_should_raise_value_error_if_differential_algebraic_variables_have_differential_spatial_dimensions():
+def test_should_raise_value_error_if_diff_alg_vars_have_different_spatial_dimensions():
     nvars_diff = (2, 128, 256)
     nvars_alg = (1, 128, 128)
 

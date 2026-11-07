@@ -54,7 +54,8 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         if nvars_diff[1:] != nvars_alg[1:]:
             raise ValueError(
-                "Differential and algebraic variables must have the same spatial dimensions"
+                "Differential and algebraic variables must have the same \
+                spatial dimensions"
             )
 
         self.validate_nvars(nvars=nvars_diff)
