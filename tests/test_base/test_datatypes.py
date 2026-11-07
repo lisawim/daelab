@@ -373,8 +373,7 @@ def test_function_repr_returns_correct_output_SemiexplicitSolution():
     )
 
     assert (
-        str(u)
-        == f"SemiexplicitSolution({num_nodes=}, "
+        str(u) == f"SemiexplicitSolution({num_nodes=}, "
         f"nvars_diff={nvars}, nvars_alg={nvars}, dtype={np.dtype(dtype)})"
     )
 

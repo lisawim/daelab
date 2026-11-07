@@ -536,9 +536,7 @@ class SemiexplicitSolution(PartitionedContainer):
 
     Examples
     --------
-    >>> u = SemiexplicitSolution(
-    ...     num_nodes=3, nvars_diff=(2, 4, 5), nvars_alg=(1, 4, 5)
-    ... )
+    >>> u = SemiexplicitSolution(3, (2, 4, 5), (1, 4, 5))
     >>> u.diff[1].shape, u.alg.shape[1]
     (2, 4, 5), (1, 4, 5)
     >>> u.diff[1][0][:] = 1.0
