@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from daelab.base.dae_problem import DAEProblem
+from daelab.base.problems.dae_problem import DAEProblem
 
 
 class SemiexplicitDAEProblem(DAEProblem, ABC):

@@ -1,6 +1,6 @@
 import pytest
 
-from daelab.base.full_implicit_dae_problem import FullimplicitDAEProblem
+from daelab.base.problems.full_implicit_dae_problem import FullimplicitDAEProblem
 
 
 class DummyImplicitDAE(FullimplicitDAEProblem):

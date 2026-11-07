@@ -1,6 +1,6 @@
 import pytest
 
-from daelab.base.dae_problem import DAEProblem
+from daelab.base.problems.dae_problem import DAEProblem
 
 
 def test_initialize_dae_problem_correctly():

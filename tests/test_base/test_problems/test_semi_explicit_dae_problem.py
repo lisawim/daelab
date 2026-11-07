@@ -1,6 +1,6 @@
 import pytest
 
-from daelab.base.semi_explicit_dae_problem import SemiexplicitDAEProblem
+from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProblem
 
 
 class IncompleteSemiexplicitDAE(SemiexplicitDAEProblem):
