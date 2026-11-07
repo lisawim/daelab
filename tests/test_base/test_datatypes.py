@@ -22,16 +22,28 @@ def test_add_calls_binary_with_add():
     assert DummyMethod() + 2 == (operator.add, 2)
 
 
+def test_radd_calls_binary_with_add():
+    assert 3 + DummyMethod() == (operator.add, 3)
+
+
 def test_sub_calls_binary_with_sub():
     assert DummyMethod() - 5 == (operator.sub, 5)
 
 
 def test_mul_calls_binary_with_mul():
+    assert DummyMethod() * 2.5 == (operator.mul, 2.5)
+
+
+def test_rmul_calls_binary_with_mul():
     assert 2.5 * DummyMethod() == (operator.mul, 2.5)
 
 
 def test_truediv_calls_binary_with_truediv():
     assert DummyMethod() / 4 == (operator.truediv, 4)
+
+
+def test_neg_multiplies_with_minus_one():
+    assert -DummyMethod() == (operator.mul, -1)
 
 
 def test_vars_are_assigned_correctly_in_solution():
@@ -46,6 +58,14 @@ def test_vars_are_assigned_correctly_in_solution():
         assert val.shape == nvars
 
     assert isinstance(u, ArithmeticMethods)
+
+
+@pytest.mark.parametrize("num_nodes",[2, 3, 4, 5])
+def test_len_method_should_return_num_nodes(num_nodes):
+    nvars = (1, 64, 64)
+    u = Solution(num_nodes=num_nodes, nvars=nvars)
+
+    assert len(u) == num_nodes
 
 
 @pytest.mark.parametrize(
@@ -81,6 +101,52 @@ def test_function_repr_returns_correct_output():
     u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=dtype)
 
     assert str(u) == f"Solution({num_nodes=}, {nvars=}, dtype={np.dtype(dtype)})"
+
+
+@pytest.mark.parametrize("num_nodes", [2, 3, 4])
+@pytest.mark.parametrize("nvars", [(1,), (3,), (2, 4), (3, 4, 5)])
+def test_flat_node_is_flattened_view_of_node(num_nodes, nvars):
+    u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=float)
+    rng = np.random.default_rng(0)
+    for m in range(num_nodes):
+        u[m] = rng.random(nvars)
+
+    for m in range(num_nodes):
+        flat = u.flat_node(m)
+
+        assert flat.shape == (np.prod(nvars),)
+        assert np.array_equal(flat, u[m].reshape(-1))
+        assert np.array_equal(flat.reshape(nvars), u[m])
+        assert np.shares_memory(flat, u[m])
+
+
+@pytest.mark.parametrize("num_nodes", [2, 3, 4])
+@pytest.mark.parametrize("nvars", [(1,), (3,), (2, 4), (3, 4, 5)])
+def test_as_flat_has_one_flattened_row_per_node(num_nodes, nvars):
+    u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=float)
+    rng = np.random.default_rng(0)
+    for m in range(num_nodes):
+        u[m] = rng.random(nvars)
+
+    flat = u.as_flat()
+
+    assert flat.shape == (num_nodes, np.prod(nvars))
+    for m in range(num_nodes):
+        assert np.array_equal(flat[m], u[m].reshape(-1))
+        assert np.array_equal(flat[m].reshape(nvars), u[m])
+
+
+def test_as_flat_returns_copy():
+    num_nodes = 3
+    nvars = (16, 16)
+    u = Solution(num_nodes=num_nodes, nvars=nvars)
+    u[:] = 1.0
+
+    flat = u.as_flat()
+    flat[:] = 5.0
+
+    assert all(np.all(u[m] == 1.0) for m in range(3))
+    assert not np.shares_memory(flat, u[0])
 
 
 def test_making_a_copy_gives_copied_instance_with_equal_attributes_to_original():
