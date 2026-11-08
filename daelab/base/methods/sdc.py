@@ -39,11 +39,11 @@ class SDCMethod:
         self.QE_type = QE_type
         self.node_type = node_type
 
-        self._generate_coefficients()
+        self.nodes, self.weights, self.Q = self._generate_coefficients()
 
         self.QI = self.get_QDelta_implicit(QI_type=self.QI_type)
         self.QE = (
-            self.get_QDelta_implicit(QE_type=self.QE_type)
+            self.get_QDelta_explicit(QE_type=self.QE_type)
             if self.QE_type is not None
             else None
         )
@@ -57,13 +57,14 @@ class SDCMethod:
             quadType=self.quad_type,
         )
 
-        self.nodes, self.weights, self.Q = coll.genCoeffs()
+        nodes, weights, Q = coll.genCoeffs()
+        return nodes, weights, Q
 
     def get_QDelta_implicit(self, QI_type):
         QDelta_impl = QDELTA_GENERATORS[QI_type](nodes=self.nodes).getQDelta()
 
-        tri_upper = np.triu_indices_from(QDelta_impl)
-        if any(tri_upper != 0):
+        tri_upper = np.triu_indices_from(QDelta_impl, k=1)
+        if np.any(QDelta_impl[tri_upper] != 0):
             raise ValueError("Implicit QDelta matrix must be of lower-triangular form!")
 
         return QDelta_impl
@@ -71,8 +72,8 @@ class SDCMethod:
     def get_QDelta_explicit(self, QE_type):
         QDelta_expl = QDELTA_GENERATORS[QE_type](nodes=self.nodes).getQDelta()
 
-        tri_upper = np.triu_indices_from(QDelta_expl)
-        if any(tri_upper != 0):
+        tri_upper = np.triu_indices_from(QDelta_expl, k=1)
+        if any(QDelta_expl[tri_upper] != 0):
             raise ValueError("Explicit QDelta matrix must be of lower-triangular form!")
 
         diag = QDelta_expl.diagonal()
