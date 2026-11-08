@@ -2,6 +2,7 @@
 
 [![CI Pipeline ⚙️](https://github.com/lisawim/daelab/actions/workflows/tests.yml/badge.svg)](https://github.com/lisawim/daelab/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/lisawim/daelab/graph/badge.svg?token=R6KWTR237V)](https://codecov.io/gh/lisawim/daelab)
+[![Project Status: WIP](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
 `daelab` is an experimental framework for exploring and analyzing numerical methods for differential-algebraic equations (DAEs).
 
