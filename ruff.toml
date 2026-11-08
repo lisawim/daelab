@@ -1,0 +1,15 @@
+line-length = 88
+
+target-version = "py314"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[lint]
+select = ["B", "C4", "E", "F", "W"]
+
+[lint.pycodestyle]
+max-doc-length = 80 

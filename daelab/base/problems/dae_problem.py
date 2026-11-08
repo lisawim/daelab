@@ -1,5 +1,6 @@
 class DAEProblem:
     """Base class for differential-algebraic equations problems."""
+
     def __init__(
         self,
         diff_index: int | None = None,
@@ -49,6 +50,18 @@ class DAEProblem:
         self._t_span = None if t_span is None else t_span
 
         self.name = self.__class__.__name__ if name is None else name
+
+    @staticmethod
+    def validate_nvars(nvars: tuple[int, ...]):
+        """Validates that nvars is of correct shape and entries."""
+        if not isinstance(nvars, tuple):
+            raise TypeError("nvars must be a tuple.")
+
+        if not nvars:
+            raise ValueError("nvars must not be empty.")
+
+        if any(not isinstance(n, int) or n < 1 for n in nvars):
+            raise ValueError("nvars must contain only positive integers.")
 
     @property
     def t_span(self) -> tuple[float, float] | None:
