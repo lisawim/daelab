@@ -3,6 +3,16 @@ import pytest
 
 from daelab.base.methods.sdc import SDCMethod
 
+from qmat import QDELTA_GENERATORS
+
+
+class DummyQDeltaGenerator:
+    def __init__(self, nodes):
+        self.nodes = nodes
+
+    def getQDelta(self):
+        return np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 4.0], [0.0, 0.0, 0.0]])
+
 
 def test_attributes_are_initialized_correctly():
     num_nodes = 3
@@ -36,7 +46,7 @@ def test_should_raise_value_error_if_num_nodes_is_less_than_two():
         SDCMethod(num_nodes=1, quad_type="RADAU-RIGHT", QI_type="IE")
 
 
-def test_generate_coefficients_should_return_arraysof_size_num_nodes():
+def test_generate_coefficients_should_return_arrays_of_size_num_nodes():
     num_nodes = 2
     sdc = SDCMethod(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
     nodes, weights, Q = sdc._generate_coefficients()
@@ -48,6 +58,32 @@ def test_generate_coefficients_should_return_arraysof_size_num_nodes():
     assert nodes.shape == (num_nodes,)
     assert weights.shape == (num_nodes,)
     assert Q.shape == (num_nodes, num_nodes)
+
+
+def test_get_QDelta_implicit_should_raise_value_error_if_matrix_is_upper_triangular(
+    monkeypatch,
+):
+    monkeypatch.setitem(QDELTA_GENERATORS, "TRIU", DummyQDeltaGenerator)
+
+    err_msg_match = "Implicit QDelta matrix must be of lower-triangular form!"
+    with pytest.raises(ValueError, match=err_msg_match):
+        SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="TRIU")
+
+
+def test_get_QDelta_explicit_should_raise_value_error_if_matrix_is_upper_triangular(
+    monkeypatch,
+):
+    monkeypatch.setitem(QDELTA_GENERATORS, "TRIU", DummyQDeltaGenerator)
+
+    err_msg_match = "Explicit QDelta matrix must be of lower-triangular form!"
+    with pytest.raises(ValueError, match=err_msg_match):
+        SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE", QE_type="TRIU")
+
+
+def test_get_QDelta_explicit_should_raise_value_error_if_diagonal_entries_are_nonzero():
+    err_msg_match = "Explicit QDelta matrix must have zero diagonal entries."
+    with pytest.raises(ValueError, match=err_msg_match):
+        SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE", QE_type="IE")
 
 
 def test_get_QDelta_implicit_returns_lower_triangular_matrix():
