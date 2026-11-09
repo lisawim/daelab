@@ -129,15 +129,18 @@ class SDCMethod:
 
         return QDelta_expl
 
-    def init_node_values(self, t, dt, u0):
+    def init_node_values(self, t, dt):
         """Initializes the values at internal nodes."""
 
         prob = self.problem
 
         tau = [t + dt * node for node in self.nodes]
-        for m in range(self.num_nodes):
-            self.u[m] = u0
-            self.f[m].diff = prob.f(u0.diff, u0.alg, tau[m])
+
+        # Initialization of provisional solution by spreading it to each node
+        for m in range(1, self.num_nodes + 1):
+            self.u[m] = self.u[0]
+            self.f[m].diff = prob.f(self.u[0].diff, self.u[0].alg, tau[m - 1])
+            self.f[m].alg = prob.g(self.u[0].diff, self.u[0].alg, tau[m - 1])
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
