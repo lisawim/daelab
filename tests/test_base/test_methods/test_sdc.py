@@ -3,8 +3,9 @@ import pytest
 
 from daelab.base.datatypes.solution import Solution
 from daelab.base.datatypes.rhs import RHS
-from daelab.base.problems.full_implicit_dae_problem import FullimplicitDAEProblem
-from tests.test_base.test_problems.test_full_implicit_dae_problem import DummyImplicitDAE
+from tests.test_base.test_problems.test_full_implicit_dae_problem import (
+    DummyImplicitDAE,
+)
 from daelab.base.methods.sdc import SDCMethod
 
 from qmat import QDELTA_GENERATORS
@@ -53,7 +54,10 @@ def test_setup_node_data_creates_solution_and_rhs_with_correct_shapes():
     assert isinstance(sdc.u, Solution)
     assert isinstance(sdc.f, RHS)
     assert len(sdc.u) == len(sdc.f) == num_nodes
-    # assert len(sdc.f) == num_nodes
+    for u_node in sdc.u:
+        assert u_node.shape == nvars
+    for f_node in sdc.f:
+        assert f_node.shape == nvars
 
 
 def test_QE_should_be_None_if_QE_type_is_not_set():
