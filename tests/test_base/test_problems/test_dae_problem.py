@@ -7,8 +7,11 @@ def test_initialize_dae_problem_correctly():
     diff_index = 1
     t_span = (0.0, 1.0)
     name = "DAE"
-    dae_problem = DAEProblem(diff_index=diff_index, t_span=t_span, name=name)
+    dae_problem = DAEProblem(
+        dtype=complex, diff_index=diff_index, t_span=t_span, name=name
+    )
 
+    assert dae_problem.dtype is complex, "dtype is not initialized correctly!"
     assert dae_problem.diff_index == diff_index, (
         "diff_index is not intialized correctly!"
     )
