@@ -1,6 +1,10 @@
 import numpy as np
 import pytest
 
+from daelab.base.datatypes.solution import Solution
+from daelab.base.datatypes.rhs import RHS
+from daelab.base.problems.full_implicit_dae_problem import FullimplicitDAEProblem
+from tests.test_base.test_problems.test_full_implicit_dae_problem import DummyImplicitDAE
 from daelab.base.methods.sdc import SDCMethod
 
 from qmat import QDELTA_GENERATORS
@@ -33,6 +37,23 @@ def test_attributes_are_initialized_correctly():
     assert sdc.QI_type == QI_type
     assert sdc.QE_type == QE_type
     assert sdc.node_type == node_type
+    assert sdc.u is None
+    assert sdc.f is None
+
+
+def test_setup_node_data_creates_solution_and_rhs_with_correct_shapes():
+    nvars = (3, 64)
+    problem = DummyImplicitDAE(nvars=nvars)
+
+    num_nodes = 3
+    sdc = SDCMethod(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
+
+    sdc.setup_node_data(problem=problem)
+
+    assert isinstance(sdc.u, Solution)
+    assert isinstance(sdc.f, RHS)
+    assert len(sdc.u) == len(sdc.f) == num_nodes
+    # assert len(sdc.f) == num_nodes
 
 
 def test_QE_should_be_None_if_QE_type_is_not_set():

@@ -1,5 +1,9 @@
 import numpy as np
 
+from daelab.base.problems.dae_problem import DAEProblem
+from daelab.base.datatypes.solution import Solution
+from daelab.base.datatypes.rhs import RHS
+
 from qmat import Q_GENERATORS, QDELTA_GENERATORS
 
 
@@ -11,13 +15,16 @@ class SDCMethod:
 
     Parameters
     ----------
-    method_type : str
-        Type of the method. The type refers to the choice of the ``Q_delta``
-        matrix.
     num_nodes : int
         Number of collocation nodes.
     quad_type : str
         Quadrature type.
+    QI_type : str
+        Type of the method. The type refers to the choice of the ``Q_delta``
+        matrix leading to an implicit scheme.
+    QE_type : str, optional
+        Type of the method. The type refers to the choice of the ``Q_delta``
+        matrix leading to an explicit scheme. Default is None.
     node_type : str
         Type of nodes. Default is ``"LEGENDRE".``
     """
@@ -47,6 +54,13 @@ class SDCMethod:
             if self.QE_type is not None
             else None
         )
+
+        self.u = None
+        self.f = None
+
+    def setup_node_data(self, problem: DAEProblem):
+        self.u = Solution(num_nodes=self.num_nodes, nvars=problem.nvars) #, dtype=problem.dtype
+        self.f = RHS(num_nodes=self.num_nodes, nvars=problem.nvars) # , dtype=problem.dtype
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""
