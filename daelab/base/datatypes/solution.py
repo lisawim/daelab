@@ -109,9 +109,10 @@ class Solution(ArithmeticMethods):
     Notes
     -----
     - The solution at each collocation node is stored in a list that has
-      ``num_nodes``entries, each of them is of shape ``nvars`` and of data type
-      ``dtype``. The solution ``u`` at node ``m`` can be accessed using ``u[m]``
-      and ``u[m][i]`` is the i-th unknown at node ``m``.
+      ``num_nodes + 1`` entries, each of them is of shape ``nvars`` and of data
+      type ``dtype``. In ``u[0]``, the initial condition ``u0`` is stored. The
+      solution ``u`` at node ``m`` can be accessed using ``u[m + 1]`` and
+      ``u[m + 1][i]`` is the i-th unknown at node ``m``.
     - ``u[m]`` returns a reference, not a copy. Modifying it, e.g.,
       ``u[m][i][:] = 1.0``, changes the stored solution.
     - Arithmetic operations with another solution of type ``Solution`` requires
@@ -122,7 +123,7 @@ class Solution(ArithmeticMethods):
     --------
     >>> u = Solution(num_nodes=4, nvars=(4, 4))
     >>> len(u)
-    4
+    5
     >>> u[2].shape
     (4, 4)
     >>> u[1][0][:] = 1.0  # writes 1.0 to each entry of unknown at index 0
@@ -135,7 +136,7 @@ class Solution(ArithmeticMethods):
     >>> u.flat_node(1).shape
     (16,)
     >>> u.as_flat().shape
-    (4, 16)
+    (5, 16)
     """
 
     def __init__(self, num_nodes, nvars, dtype=float):
@@ -150,7 +151,7 @@ class Solution(ArithmeticMethods):
         self.nvars = nvars
         self.dtype = dtype
         self._comps = [
-            np.zeros(self.nvars, dtype=self.dtype) for _ in range(self.num_nodes)
+            np.zeros(self.nvars, dtype=self.dtype) for _ in range(self.num_nodes + 1)
         ]
 
     def __len__(self):
@@ -299,8 +300,8 @@ class Solution(ArithmeticMethods):
             New object of the same type as ``self``.
         """
         new = self.copy()
-        for m in range(self.num_nodes):
+        for m in range(1, self.num_nodes + 1):
             new._comps[m][...] = sum(
-                Q[m, k] * self._comps[k] for k in range(self.num_nodes)
+                Q[m - 1, k - 1] * self._comps[k] for k in range(1, self.num_nodes + 1)
             )
         return new

@@ -86,12 +86,14 @@ class SDCMethod:
         self.u = None
         self.f = None
 
-    def setup_node_data(self, problem: DAEProblem):
+    def setup(self, problem: DAEProblem) -> None:
         self.problem = problem
-        self.u = Solution(
-            num_nodes=self.num_nodes, nvars=problem.nvars, dtype=problem.dtype
-        )
-        self.f = RHS(num_nodes=self.num_nodes, nvars=problem.nvars, dtype=problem.dtype)
+        self.setup_node_data()
+
+    def setup_node_data(self):
+        prob = self.problem
+        self.u = Solution(num_nodes=self.num_nodes, nvars=prob.nvars, dtype=prob.dtype)
+        self.f = RHS(num_nodes=self.num_nodes, nvars=prob.nvars, dtype=prob.dtype)
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""

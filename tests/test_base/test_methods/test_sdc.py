@@ -42,18 +42,19 @@ def test_attributes_are_initialized_correctly():
     assert sdc.f is None
 
 
-def test_setup_node_data_creates_solution_and_rhs_with_correct_shapes():
+def test_setup_creates_problem_attribute_solution_and_rhs_with_correct_shapes():
     nvars = (3, 64)
     problem = DummyImplicitDAE(nvars=nvars)
 
     num_nodes = 3
     sdc = SDCMethod(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
 
-    sdc.setup_node_data(problem=problem)
+    sdc.setup(problem=problem)
 
     assert isinstance(sdc.u, Solution)
     assert isinstance(sdc.f, RHS)
-    assert len(sdc.u) == len(sdc.f) == num_nodes
+    assert isinstance(sdc.problem, DummyImplicitDAE)
+    assert len(sdc.u) == len(sdc.f) == num_nodes + 1
     for u_node in sdc.u:
         assert u_node.shape == nvars
     for f_node in sdc.f:
