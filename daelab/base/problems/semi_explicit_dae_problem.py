@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from daelab.base.problems.dae_problem import DAEProblem
 
 
@@ -77,6 +78,10 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     def g(self, y, z, t):
         """Evaluate the algebraic equation `g(y, z, t)`."""
         raise NotImplementedError("Subclasses must implement g(y, z, t).")
+
+    def solve_system(self, factor, y0, z0, t, rhs_diff, rhs_alg):
+        """Solves the implicit system."""
+        raise NotImplementedError("Subclasses must implement solve_system().")
 
     def y_exact(self, t):
         raise NotImplementedError(
