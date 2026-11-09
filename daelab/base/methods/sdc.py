@@ -11,7 +11,13 @@ class SDCMethod:
     """
     SDC method class for general DAE problems.
 
-    The method is the base class to design different SDC methods.
+    The method is the base class to design different SDC methods. For passed
+    parameters ``num_nodes``, ``quad_type``, and ``node_type`` it generates
+    the weights, nodes, and coefficient of spectral integration matrix ``Q``
+    (representing the coefficients of a collocation method). While ``QI_type``
+    indicates the choice of the ``Q_delta`` matrix and refers to a certain
+    implicit SDC method, ``QE_type`` instead refers to a certain explicit
+    SDC scheme.
 
     Parameters
     ----------
@@ -27,6 +33,28 @@ class SDCMethod:
         matrix leading to an explicit scheme. Default is None.
     node_type : str
         Type of nodes. Default is ``"LEGENDRE".``
+
+    Notes
+    -----
+    - Noth, ``QI_type`` and ``QE_type`` can be set to treat the right-hand side
+      in an IMEX fashion. If only one of them is set, make sure that the
+      computation also use the corresponding ``Q_delta`` in an efficient way.
+      For example, choosing ``QI_type`` that refers to an explicit scheme
+      unnecessarily solves an implicit system with zero diagonal entry and can
+      be avoided by, e.g. setting ``QE_type`` instead.
+
+    Attributes
+    ----------
+    num_nodes : int
+        Number of collocation nodes.
+    quad_type : str
+        Quadrature type.
+    QI_type : str
+        Type of the implicit SDC method.
+    QE_type : str
+        Type of the explicit SDC method.
+    node_type : str
+        Type of nodes.
     """
 
     def __init__(
