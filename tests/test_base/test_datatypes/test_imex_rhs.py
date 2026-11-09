@@ -22,6 +22,7 @@ def test_vars_are_assigned_correctly_in_IMEXRHS():
     assert imex_rhs.nvars == nvars
     assert isinstance(imex_rhs.impl, RHS)
     assert isinstance(imex_rhs.expl, RHS)
+    assert len(imex_rhs.impl) == len(imex_rhs.expl) == num_nodes + 1
 
 
 def test_full_rhs_should_return_the_complete_rhs():

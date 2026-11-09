@@ -139,15 +139,19 @@ def test_apply_matrix_is_applied_to_all_components():
 
     Q = np.array([[1, 0], [2, 0]])
 
-    for m in range(u.num_nodes):
+    for m in range(1, u.num_nodes + 1):
         u.diff[m] = (m + 3) * np.ones(u.nvars_diff)
         u.alg[m] = (m + 5) * np.ones(u.nvars_alg)
 
     res = u.apply_matrix(Q)
 
-    for m in range(u.num_nodes):
-        expected_diff = sum(Q[m, k] * u.diff[k] for k in range(u.num_nodes))
-        expected_alg = sum(Q[m, k] * u.alg[k] for k in range(u.num_nodes))
+    for m in range(1, u.num_nodes + 1):
+        expected_diff = sum(
+            Q[m - 1, k - 1] * u.diff[k] for k in range(1, u.num_nodes + 1)
+        )
+        expected_alg = sum(
+            Q[m - 1, k - 1] * u.alg[k] for k in range(1, u.num_nodes + 1)
+        )
 
         assert np.array_equal(res.diff[m], expected_diff)
         assert np.array_equal(res.alg[m], expected_alg)

@@ -25,6 +25,7 @@ def test_vars_are_assigned_correctly_in_SemiexplicitRHS():
     assert semiexplicit_rhs.imex_diff == imex_diff
     assert isinstance(semiexplicit_rhs.diff, RHS)
     assert isinstance(semiexplicit_rhs.alg, RHS)
+    assert len(semiexplicit_rhs.diff) == len(semiexplicit_rhs.alg) == num_nodes + 1
 
 
 def test_SemiExplicitRHS_can_use_imex_splitting():

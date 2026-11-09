@@ -45,7 +45,7 @@ def test_vars_are_assigned_correctly_in_solution():
 
     assert u.num_nodes == num_nodes
     assert u.nvars == nvars
-    assert len(u._comps) == num_nodes
+    assert len(u._comps) == num_nodes + 1
     for val in u._comps:
         assert val.shape == nvars
 
@@ -65,7 +65,7 @@ def test_len_method_should_return_num_nodes(num_nodes):
     nvars = (1, 64, 64)
     u = Solution(num_nodes=num_nodes, nvars=nvars)
 
-    assert len(u) == num_nodes
+    assert len(u) == num_nodes + 1
 
 
 @pytest.mark.parametrize(
@@ -108,10 +108,10 @@ def test_function_repr_returns_correct_output():
 def test_flat_node_is_flattened_view_of_node(num_nodes, nvars):
     u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=float)
     rng = np.random.default_rng(0)
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         u[m] = rng.random(nvars)
 
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         flat = u.flat_node(m)
 
         assert flat.shape == (np.prod(nvars),)
@@ -125,13 +125,13 @@ def test_flat_node_is_flattened_view_of_node(num_nodes, nvars):
 def test_as_flat_has_one_flattened_row_per_node(num_nodes, nvars):
     u = Solution(num_nodes=num_nodes, nvars=nvars, dtype=float)
     rng = np.random.default_rng(0)
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         u[m] = rng.random(nvars)
 
     flat = u.as_flat()
 
-    assert flat.shape == (num_nodes, np.prod(nvars))
-    for m in range(num_nodes):
+    assert flat.shape == (num_nodes + 1, np.prod(nvars))
+    for m in range(num_nodes + 1):
         assert np.array_equal(flat[m], u[m].reshape(-1))
         assert np.array_equal(flat[m].reshape(nvars), u[m])
 
@@ -145,7 +145,7 @@ def test_as_flat_returns_copy():
     flat = u.as_flat()
     flat[:] = 5.0
 
-    assert all(np.all(u[m] == 1.0) for m in range(3))
+    assert all(np.all(u[m] == 1.0) for m in range(4))
     assert not np.shares_memory(flat, u[0])
 
 
@@ -160,7 +160,7 @@ def test_making_a_copy_gives_copied_instance_with_equal_attributes_to_original()
     assert u_copy.num_nodes == u.num_nodes
     assert u_copy.nvars == u.nvars
     assert u_copy.dtype == u.dtype
-    assert len(u_copy._comps) == len(u._comps)
+    assert len(u_copy._comps) == len(u._comps) == num_nodes + 1
 
 
 def test_apply_matrix_is_applied_to_values_at_all_nodes():
@@ -171,13 +171,13 @@ def test_apply_matrix_is_applied_to_values_at_all_nodes():
 
     Q = np.array([[1, 0, 5], [2, 0, 3], [1, 1, 1]])
 
-    for m in range(u.num_nodes):
+    for m in range(1, u.num_nodes + 1):
         u[m] = (m + 2) * np.ones(nvars)
 
     res = u.apply_matrix(Q)
 
-    for m in range(u.num_nodes):
-        expected = sum(Q[m, k] * u._comps[k] for k in range(u.num_nodes))
+    for m in range(1, u.num_nodes + 1):
+        expected = sum(Q[m - 1, k - 1] * u._comps[k] for k in range(1, u.num_nodes + 1))
 
         assert np.array_equal(res[m], expected)
 
@@ -210,13 +210,13 @@ def test_binary_adds_two_solutions():
     u1 = Solution(num_nodes=num_nodes, nvars=nvars)
     u2 = Solution(num_nodes=num_nodes, nvars=nvars)
 
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         u1[m] = (m + 2) * np.ones(nvars)
         u2[m] = (m + 4) * np.ones(nvars)
 
     sum = u1._binary(u2, np.add)
 
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         assert np.array_equal(sum[m], u1[m] + u2[m])
 
 
@@ -225,10 +225,10 @@ def test_binary_adds_solution_and_scalar():
     nvars = (2, 2)
     u = Solution(num_nodes=num_nodes, nvars=nvars)
 
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         u[m] = (m + 2) * np.ones(nvars)
 
     sum = u._binary(6, np.add)
 
-    for m in range(num_nodes):
+    for m in range(num_nodes + 1):
         assert np.array_equal(sum[m], u[m] + 6)
