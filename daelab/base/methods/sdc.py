@@ -87,6 +87,7 @@ class SDCMethod:
         self.f = None
 
     def setup_node_data(self, problem: DAEProblem):
+        self.problem = problem
         self.u = Solution(
             num_nodes=self.num_nodes, nvars=problem.nvars, dtype=problem.dtype
         )
@@ -126,8 +127,15 @@ class SDCMethod:
 
         return QDelta_expl
 
-    def init_node_values(self):
+    def init_node_values(self, t, dt, u0):
         """Initializes the values at internal nodes."""
+
+        prob = self.problem
+
+        tau = [t + dt * node for node in self.nodes]
+        for m in range(self.num_nodes):
+            self.u[m] = u0
+            self.f[m].diff = prob.f(u0.diff, u0.alg, tau[m])
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
