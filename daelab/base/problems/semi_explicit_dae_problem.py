@@ -9,6 +9,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         self,
         nvars_diff: tuple[int, ...],
         nvars_alg: tuple[int, ...],
+        dtype: type = float,
         diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
@@ -22,6 +23,8 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
             Number of unknown differential variables and spatial dimensions.
         nvars_alg : tuple of integers
             Number of unknown algebraic variables and spatial dimensions.
+        dtype : type
+            Datatype of the solution. Default is float.
         diff_index : int or None
             Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
@@ -39,6 +42,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
             if t_end is not greater than t0.
         """
         super().__init__(
+            dtype=dtype,
             diff_index=diff_index,
             t_span=t_span,
             name=name,

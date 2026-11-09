@@ -3,6 +3,7 @@ class DAEProblem:
 
     def __init__(
         self,
+        dtype: type = float,
         diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
@@ -12,6 +13,8 @@ class DAEProblem:
 
         Parameters
         ----------
+        dtype : type
+            Datatype of the solution. Default is float.
         diff_index : int or None
             Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
@@ -28,6 +31,8 @@ class DAEProblem:
             If t_span does not contain exactly two values or
             if t_end is not greater than t0.
         """
+
+        self.dtype = dtype
 
         if diff_index is not None:
             if isinstance(diff_index, bool) or not isinstance(diff_index, int):
