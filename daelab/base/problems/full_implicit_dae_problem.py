@@ -8,6 +8,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
     def __init__(
         self,
         nvars: tuple[int, ...],
+        dtype: type = float,
         diff_index: int | None = None,
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
@@ -24,6 +25,8 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
             For example, for nvars = (3, n_x, n_y), the problem has three
             unknowns, with n_x degrees of freedom in x-direction and n_y degrees
             of freedom in y_direction.
+        dtype : type
+            Datatype of the solution. Default is float.
         diff_index : int or None
             Differentiation index of the DAE problem.
         t_span : tuple[float, float] or None
@@ -42,6 +45,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
         """
 
         super().__init__(
+            dtype=dtype,
             diff_index=diff_index,
             t_span=t_span,
             name=name,
