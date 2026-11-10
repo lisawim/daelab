@@ -53,6 +53,21 @@ def test_y_exact_returns_correct_solution(t):
     )
 
 
+def test_solve_system_accurately_solves_the_node_system():
+    prob = LinearManufacturedDAE()
+
+    t0 = 0.0
+    y0, z0 = prob.y_exact(t=t0), prob.z_exact(t=t0)
+
+    dt = 0.01
+    y, z = prob.solve_system(factor=dt, y0=y0, z0=z0, t=t0, rhs_diff=y0, rhs_alg=z0)
+
+    y1, z1 = prob.y_exact(t=t0 + dt), prob.z_exact(t=t0 + dt)
+
+    assert abs(y - y1) < 7.5e-4
+    assert abs(z - z1) < 1.5e-3
+
+
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
 def test_z_exact_returns_correct_solution(t):
     problem = LinearManufacturedDAE()
