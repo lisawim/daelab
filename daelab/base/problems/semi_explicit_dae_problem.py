@@ -13,10 +13,10 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     .. math::
         0 = g(y(t), z(t), t),
 
-    for :math:`t` in a finite interval. The function :math:`f` is the right-hand side
-    of the differential equations and :math:`g` is the right-hand side of the
-    algebraic constraints. The functions :math:`y` and :math:`z` are the unknown
-    differential and algebraic variables.
+    for :math:`t` in a finite interval. The function :math:`f` is the right-hand
+    side of the differential equations and :math:`g` is the right-hand side of
+    the algebraic constraints. The functions :math:`y` and :math:`z` are the
+    unknown differential and algebraic variables.
 
     Parameters
     ----------
