@@ -3,9 +3,40 @@ import operator
 import pytest
 
 from daelab.base.datatypes.arithmetic import ArithmeticMethods
-from daelab.base.datatypes.array import Array
+from daelab.base.datatypes.array import _assign, Array
 
 OPERATORS = [operator.add, operator.sub, operator.mul, operator.truediv]
+
+
+class Recorder:
+    """Target that is not a numpy array and records calls of assign."""
+
+    def __init__(self):
+        self.calls = []
+
+    def assign(self, value):
+        self.calls.append(value)
+
+
+def test_assign_to_ndarray_writes_values_in_place():
+    target = np.zeros((2, 3, 4))
+    view = target[1]
+
+    val = np.arange(24, dtype=float).reshape(2, 3, 4)
+
+    _assign(target, val)
+
+    assert np.array_equal(target, val)
+    assert np.array_equal(val[1], view)
+
+
+def test_assign_to_other_target_calls_its_assign_method():
+    target = Recorder()
+    val = object()
+
+    _assign(target, val)
+
+    assert target.calls == [val]
 
 
 def test_class_initializes_array_of_desired_shape_and_dtype():
