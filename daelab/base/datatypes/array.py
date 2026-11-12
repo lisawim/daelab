@@ -34,6 +34,10 @@ class Array(ArithmeticMethods):
         self.values[i] = val
 
     def __array__(self, dtype=None, copy=None):
+        if copy:
+            return np.array(self.values, dtype=dtype, copy=True)
+        if copy is False and dtype is not None and np.dtype(dtype) != self.dtype:
+            raise ValueError("Unable to avoid a copy while converting to this dtype.")
         return np.asarray(self.values, dtype=dtype)
 
     def copy(self):
