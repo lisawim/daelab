@@ -298,3 +298,28 @@ def test_binary_with_scalar_applies_operation_to_values(filled_array, op):
     assert np.array_equal(result.alg.values, op(filled_array.alg.values, 2.0)), (
         "op is not applied to all values of diff part."
     )
+
+
+def test_imex_array_has_zero_initialized_parts_with_given_shape_and_dtype():
+    a = IMEXArray(((2, 3), np.float32))
+
+    impl, expl = a
+    assert impl is a.impl and expl is a.expl
+    for part in (a.impl, a.expl):
+        assert part.shape == (2, 3)
+        assert part.dtype == np.dtype(np.float32)
+        assert np.all(np.asarray(part) == 0.0)
+
+    assert not np.shares_memory(np.asarray(a.impl), np.asarray(a.expl))
+
+
+def test_imex_array_full_rhs_is_sum_of_parts_and_leaves_parts_unchanged():
+    a = IMEXArray(((2, 3), np.float32))
+    a.impl[...] = 1.0
+    a.expl[...] = 2.0
+
+    full_rhs = a.full_rhs
+
+    assert np.all(np.asarray(full_rhs) == 3.0)
+    assert np.all(np.asarray(a.impl) == 1.0)
+    assert np.all(np.asarray(a.expl) == 2.0)
