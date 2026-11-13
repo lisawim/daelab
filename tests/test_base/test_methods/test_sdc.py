@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
 
-from daelab.base.datatypes.solution import Solution
-from daelab.base.datatypes.rhs import RHS
+from daelab.base.datatypes.node_list import NodeList
 from tests.test_base.test_problems.test_full_implicit_dae_problem import (
     DummyImplicitDAE,
 )
@@ -51,8 +50,8 @@ def test_setup_creates_problem_attribute_solution_and_rhs_with_correct_shapes():
 
     sdc.setup(problem=problem)
 
-    assert isinstance(sdc.u, Solution)
-    assert isinstance(sdc.f, RHS)
+    assert isinstance(sdc.u, NodeList)
+    assert isinstance(sdc.f, NodeList)
     assert isinstance(sdc.problem, DummyImplicitDAE)
     assert len(sdc.u) == len(sdc.f) == num_nodes + 1
     for u_node in sdc.u:
