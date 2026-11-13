@@ -69,9 +69,7 @@ class NodeList(ArithmeticMethods):
         numpy.ndarray
             Array of length ``np.prod(nvars)``.
         """
-        if not isinstance(self._comps[m], np.ndarray):
-            raise TypeError("flat_node is only available for array nodes.")
-        return self._comps[m].reshape(-1)
+        return self._nodes[m].flat()
 
     def as_flat(self):
         """
@@ -83,9 +81,7 @@ class NodeList(ArithmeticMethods):
         np.ndarray
             Array of shape ``(num_nodes + 1, np.prod(nvars))``.
         """
-        if not all(isinstance(node, np.ndarray) for node in self._nodes):
-            raise TypeError("as_flat is only available for array nodes.")
-        return np.stack([node.reshape(-1) for node in self._comps])
+        return np.stack([node.flat() for node in self._nodes])
 
     def copy(self):
         """
@@ -135,27 +131,4 @@ class NodeList(ArithmeticMethods):
             ]
         else:
             new._nodes = [op(a, other) for a in self._nodes]
-        return new
-
-    def apply_matrix(self, Q):
-        """
-        Apply a matrix along the node axis, i.e., (Q u)[m] = sum_k Q[m, k] u[k].
-
-        Parameters
-        ----------
-        Q : array_like
-            Matrix of shape ``(num_nodes, num_nodes)``, e.g., the quadrature
-            matrix.
-
-        Returns
-        -------
-        NodeList
-            New object of the same type as ``self``.
-        """
-        new = self.copy()
-        for m in range(len(self)):
-            acc = Q[m, 0] * self._nodes[0]
-            for k in range(1, len(self)):
-                acc = acc + Q[m, k] * self._nodes[k]
-            _assign(new._nodes[m], acc)
         return new

@@ -2,7 +2,6 @@ import numpy as np
 import operator
 import pytest
 
-from daelab.base.datatypes.array import _assign
 from daelab.base.datatypes.node_list import NodeList
 from daelab.base.datatypes.partitioned import (
     PartitionedArray,
@@ -63,68 +62,14 @@ class OtherArray(PartitionedArray):
     _components = ("u", "z")
 
 
-class Recorder:
-    """Target that is not a numpy array and records calls of assign."""
-
-    def __init__(self):
-        self.calls = []
-
-    def assign(self, value):
-        self.calls.append(value)
-
-
-def test_assign_to_ndarray_writes_values_in_place():
-    target = np.zeros((2, 3, 4))
-    view = target[1]
-
-    val = np.arange(24, dtype=float).reshape(2, 3, 4)
-
-    _assign(target, val)
-
-    assert np.array_equal(target, val)
-    assert np.array_equal(val[1], view)
-
-
-def test_assign_to_other_target_calls_its_assign_method():
-    target = Recorder()
-    val = object()
-
-    _assign(target, val)
-
-    assert target.calls == [val]
-
-
-def test_parts_return_all_components():
+def test_parts_and_iteration_return_components_in_order():
     a = DummyArray()
 
-    assert a._parts == [a.comp1, a.comp2]
+    assert len(a._parts) == 2
+    assert a._parts[0] is a.comp1 and a._parts[1] is a.comp2
 
-
-def test_assign_should_raise_value_error_if_components_differ():
-    a = DummyArray()
-    value = OtherArray()
-
-    err_msg_match = "Operands must have the same parts."
-    with pytest.raises(ValueError, match=err_msg_match):
-        a.assign(value)
-
-
-def test_copy_creates_independent_array():
-    a = DummyArray()
-
-    a_copy = a.copy()
-
-    assert type(a_copy) is type(a), "Copied array is not an instance of DummyArray."
-    assert a_copy is not a
-    assert a_copy.comp1 is not a.comp1
-    assert a_copy.comp1 is not a.comp2
-
-    assert not np.shares_memory(a_copy, a), (
-        "Copied array shares memory with the original"
-    )
-
-    assert np.array_equal(a_copy.comp1, a.comp1)
-    assert np.array_equal(a_copy.comp2, a.comp2)
+    comp1, comp2 = a
+    assert comp1 is a.comp1 and comp2 is a.comp2
 
 
 def test_assign_scalar_writes_all_parts(zero_imex_array):
@@ -134,12 +79,27 @@ def test_assign_scalar_writes_all_parts(zero_imex_array):
     assert np.all(zero_imex_array.diff.expl.values == 3.0)
     assert np.all(zero_imex_array.alg.values == 3.0)
 
+    a = DummyArray()
+    a.assign(7.0)
+
+    assert np.all(a.comp1 == 7.0)
+    assert np.all(a.comp2 == 7.0)
+
 
 def test_assign_sequence_writes_each_part(zero_array):
     zero_array.assign((diff_values(), alg_values()))
 
     assert np.array_equal(zero_array.diff.values, diff_values())
     assert np.array_equal(zero_array.alg.values, alg_values())
+
+    a = DummyArray()
+    comp1, comp2 = a.comp1, a.comp2
+
+    a.assign((np.full((3, 2), 10), np.full((3, 1), 20)))
+
+    assert a.comp1 is comp1 and a.comp2 is comp2
+    assert np.all(comp1 == 10)
+    assert np.all(comp2 == 20)
 
 
 def test_assign_same_type_writes_nested_parts_and_stays_independent(
@@ -152,6 +112,17 @@ def test_assign_same_type_writes_nested_parts_and_stays_independent(
     assert np.array_equal(filled_imex_array.diff.expl.values, -diff_values())
     assert np.array_equal(filled_imex_array.alg.values, alg_values())
 
+    a, other = DummyArray(), DummyArray()
+    other.comp1[...] = 10
+    other.comp2[...] = 20
+
+    a.assign(other)
+    other.comp1[...] = -1
+    other.comp2[...] = -1
+
+    assert np.all(a.comp1 == 10)
+    assert np.all(a.comp2 == 20)
+
 
 def test_assign_writes_in_place_into_existing_parts(zero_array):
     diff, alg = zero_array.diff, zero_array.alg
@@ -161,6 +132,14 @@ def test_assign_writes_in_place_into_existing_parts(zero_array):
 
     assert zero_array.diff is diff and zero_array.alg is alg
     assert zero_array.diff.values is diff_array and zero_array.alg.values is alg_array
+
+
+def test_assign_should_raise_value_error_if_components_differ():
+    a = DummyArray()
+
+    err_msg_match = "Operands must have the same parts."
+    with pytest.raises(ValueError, match=err_msg_match):
+        a.assign(OtherArray())
 
 
 def test_assign_should_raise_type_error_if_value_is_np_array(zero_array):
@@ -176,6 +155,23 @@ def test_assign_should_raise_value_error_if_length_of_values_differ(vals, zero_a
     f"{zero_array._components}, got {len(vals)} values."
     with pytest.raises(ValueError, match=err_msg_match):
         zero_array.assign(vals)
+
+
+def test_copy_creates_independent_array():
+    a = DummyArray()
+
+    a_copy = a.copy()
+
+    assert type(a_copy) is type(a), "Copied array is not an instance of DummyArray."
+    assert a_copy is not a
+    assert a_copy.comp1 is not a.comp1
+    assert a_copy.comp1 is not a.comp2
+    assert a_copy.num_nodes == a.num_nodes
+    for name in a._components:
+        original, copied = getattr(a, name), getattr(a_copy, name)
+        assert copied is not original
+        assert not np.shares_memory(copied, original)
+        assert np.array_equal(copied, original)
 
 
 def test_copy_returns_independent_object_with_equal_values(filled_array):
@@ -215,16 +211,43 @@ def test_copy_returns_independent_object_with_equal_values(filled_array):
     )
 
 
+@pytest.mark.parametrize(
+    "nvars", [((1,), (2,)), ((2, 4), (1, 4)), ((2, 3, 4), (1, 3, 4))]
+)
+def test_flat_has_length_prod_of_nvars(nvars):
+    init = (nvars[0], nvars[1], float)
+    a = SemiexplicitArray(init)
+
+    flat = a.flat()
+    flat_shape = (np.prod(nvars[0]) + np.prod(nvars[1]),)
+    assert flat.shape == flat_shape, "Flattened array does not have correct shape."
+
+
+def test_flat_is_one_dimensional_numpy_array():
+    a = SemiexplicitArray(((2, 3, 4), (1, 3, 4), float))
+    flat = a.flat()
+
+    assert isinstance(flat, np.ndarray)
+    assert flat.ndim == 1
+
+
+def test_flat_has_values_in_c_order():
+    a = SemiexplicitArray((NVARS_DIFF, NVARS_ALG, float))
+    a.diff.values[...] = np.arange(np.prod(NVARS_DIFF)).reshape(NVARS_DIFF)
+    a.alg.values[...] = np.arange(
+        np.prod(NVARS_DIFF), np.prod(NVARS_ALG) + np.prod(NVARS_DIFF)
+    ).reshape(NVARS_ALG)
+
+    assert np.array_equal(a.flat(), np.arange(36))
+    assert a.flat().flags["C_CONTIGUOUS"]
+
+
 @pytest.mark.parametrize("op", OPERATORS)
 def test_binary_should_raise_value_error_if_other_object_has_different_parts(op):
     a = DummyArray()
-    other = OtherArray()
-
-    other.u = np.zeros((3, 1))
-    other.z = np.zeros((2, 2))
 
     with pytest.raises(ValueError, match="Operands must have the same parts."):
-        a._binary(other, op)
+        a._binary(OtherArray(), op)
 
 
 @pytest.mark.parametrize("op", OPERATORS)

@@ -12,6 +12,9 @@ class PartitionedArray(ArithmeticMethods):
     def _parts(self):
         return [getattr(self, name) for name in self._components]
 
+    def __iter__(self):
+        return iter(self._parts)
+
     def assign(self, value):
         """
         Writes `value` into the parts (in-place).
@@ -57,6 +60,9 @@ class PartitionedArray(ArithmeticMethods):
         for name in self._components:
             setattr(new, name, getattr(self, name).copy())
         return new
+
+    def flat(self):
+        return np.concatenate([part.flat() for part in self._parts])
 
     def _binary(self, other, op):
         """
