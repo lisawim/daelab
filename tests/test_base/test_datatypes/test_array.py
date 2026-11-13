@@ -143,7 +143,7 @@ def test_getitem_allows_in_place_modifications(filled_array):
         "Values of first unknown have not been set to 100.0."
     )
     assert not np.any(filled_array.values[1] == 100.0), (
-        "At least on value of the second unknown has been erroneously set to 100.0."
+        "At least one value of the second unknown has been erroneously set to 100.0."
     )
 
 
@@ -418,6 +418,7 @@ def test_flat_is_one_dimensional_numpy_array(filled_array):
 
 def test_flat_has_values_in_c_order(filled_array):
     assert np.array_equal(filled_array.flat(), np.arange(24))
+    assert filled_array.flat().flags["C_CONTIGUOUS"]
 
 
 def test_flat_reshaped_gives_values_back(filled_array):

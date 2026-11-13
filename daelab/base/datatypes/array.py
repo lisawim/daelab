@@ -51,7 +51,7 @@ class Array(ArithmeticMethods):
 
     def flat(self):
         """Values as flat vector of length prod(nvars) (view if possible)."""
-        return self.values.reshape(-1)
+        return self.values.reshape(-1, order="C")
 
     def _binary(self, other, op):
         if isinstance(other, ArithmeticMethods) and not isinstance(other, Array):
