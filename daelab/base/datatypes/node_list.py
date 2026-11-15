@@ -10,17 +10,82 @@ def _shapes(init):
 
 
 class NodeList(ArithmeticMethods):
+    """
+    Class to create a lise of node objects, e.g., the solution or the right-hand
+    side at all collocation nodes.
+
+    The class stores one array of type ``dtype_node`` and corresponding ``init``
+    per collocation node. For ``num_nodes`` the list is of length
+    ``num_nodes + 1``, where at index ``0``, the initial condition will be
+    stored. The operators ``+``, ``-``, ``*``, ``/`` and the unary ``-`` are
+    made available through inheritance in this class.
+
+    Parameters
+    ----------
+    dtype_node : Array, SemiexplicitArray, SemiexplicitIMEXArray, or IMEXArray
+        Array datatype at every node.
+    init : tuple
+        Corresponding init for ``dtype_node``.
+    num_nodes : int
+        Number of collocation nodes.
+
+    Attributes
+    ----------
+    dtype_node : Array, SemiexplicitArray, SemiexplicitIMEXArray, or IMEXArray
+        Array datatype at every node.
+    init : tuple
+        Corresponding init for ``dtype_node``.
+
+    Notes
+    -----
+    - For a ``NodeList`` ``u`` the solution at each collocation node is stored
+      in a list that has ``num_nodes + 1`` entries, each of them is of shape
+      ``nvars``. For differential and algebraic parts, each entry has shapes
+      ``nvars_diff`` and ``nvars_alg``. In ``u[0]``, the initial condition
+      ``u0`` is stored.
+    - The values of ``u`` at node ``m`` can be accessed using ``u[m + 1]`` and
+      ``u[m + 1][i]`` is the i-th unknown at node ``m``. For datatypes using
+      different parts ``comp1`` and ``comp2``, the values can be accessed using
+      ``u[m + 1].comp1[:]`` and ``u[m + 1].comp2[:]``.
+    - ``u[m]`` returns a reference, not a copy. Modifying it, e.g.,
+      ``u[m][i][:] = 1.0``, changes the stored solution.
+    - Arithmetic operations with another ``NodeList`` requires the same
+      ``init``. Scalars and arrays that broadcast to ``nvars`` are applied to
+      every node.
+
+    Examples
+    --------
+    >>> u = NodeList(SemiexplicitArray, ((2, 4, 5), (1, 4, 5), float), 3)
+    >>> len(u)
+    4
+    >>> u[2].diff.shape, u[2].alg.shape
+    (2, 4, 5), (1, 4, 5)
+    >>> u.flat_node(1).shape
+    (60,)
+    >>> u.as_flat().shape
+    (4, 60)
+    """
+
     def __init__(self, dtype_node, init, num_nodes):
+        """Initialization routine."""
         self.dtype_node = dtype_node
         self.init = init
         self._nodes = [dtype_node(init) for _ in range(num_nodes + 1)]
 
     def __len__(self):
+        """
+        Returns the length of the list, which is ``num_nodes + 1``.
+
+        Returns
+        -------
+        int
+            Length of list
+        """
         return len(self._nodes)
 
     def __getitem__(self, m):
         """
-        Returns the solution at node ``m``.
+        Returns the array at node ``m``.
 
         Parameters
         ----------
@@ -30,9 +95,8 @@ class NodeList(ArithmeticMethods):
         Returns
         -------
         numpy.ndarray
-            reference to the solution at node ``m`` of shape
-            ``nvars``. If the index is a slice, it returns a list
-            of arrays.
+            Reference to the array at node ``m`` of shape ``nvars``. If the
+            index is a slice, it returns a list of arrays.
         """
         return self._nodes[m]
 
@@ -57,7 +121,7 @@ class NodeList(ArithmeticMethods):
 
     def flat_node(self, m):
         """
-        Solution at node m as flat vector of length ``np.prod(nvars)``.
+        Array at node ``m`` as flat vector of length ``np.prod(nvars)``.
 
         Parameters
         ----------
@@ -73,7 +137,7 @@ class NodeList(ArithmeticMethods):
 
     def as_flat(self):
         """
-        Returns the solution at all nodes as a matrix of shape
+        Returns the entries at all nodes as a matrix of shape
         ``(num_nodes + 1, np.prod(nvars))``.
 
         Returns
@@ -104,21 +168,21 @@ class NodeList(ArithmeticMethods):
 
         Parameters
         ----------
-        other : Solution or other datatype
-            Second operand. A `Solution` object must have the same
-            ``num_nodes`` and ``nvars``.
+        other : NodeList
+            Second operand. A `NodeList` object must have the same length and
+            ``init``.
         op : callable
             Operation.
 
         Returns
         -------
-        new : Solution
+        new : NodeList
             Result of the same type as ``self`` of performed operation.
 
         Raises
         ------
         ValueError
-            If ``other`` has different ``nvars`` or a different ``num_nodes``.
+            If ``other`` has different length or a different ``init``.
         """
         new = self.copy()
         if isinstance(other, NodeList):
