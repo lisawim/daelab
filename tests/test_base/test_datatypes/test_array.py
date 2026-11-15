@@ -506,7 +506,8 @@ def test_binary_result_dtype_follows_numpy_promotion():
 
 
 def test_binary_returns_not_implemented_for_other_arithmetic_type(filled_array):
-    assert filled_array._binary(OtherArithmetic(), operator.add) is NotImplemented
+    with pytest.raises(NotImplementedError):
+        filled_array._binary(OtherArithmetic(), operator.add)
 
 
 def test_binary_should_raise_value_error_if_shapes_do_not_match(filled_array):
