@@ -111,8 +111,13 @@ def test_raises_type_error_without_g(nvars=(1,)):
         DummyMissingG(nvars_diff=nvars, nvars_alg=nvars)
 
 
-def test_raises_notimplemented_error_if_y_z_exact_not_implemented(nvars=(1,)):
+def test_raises_not_implemented_error_if_methods_not_implemented(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
+
+    with pytest.raises(
+        NotImplementedError, match=r"Subclasses must implement solve_system\(\)."
+    ):
+        problem.solve_system(1.0, 1.5, 2.0, 0.5, 0.25, 0.2)
 
     with pytest.raises(
         NotImplementedError,
