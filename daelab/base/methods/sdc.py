@@ -1,8 +1,8 @@
 import numpy as np
 
 from daelab.base.problems.dae_problem import DAEProblem
-from daelab.base.datatypes.solution import Solution
-from daelab.base.datatypes.rhs import RHS
+from daelab.base.datatypes.array import Array
+from daelab.base.datatypes.node_list import NodeList
 
 from qmat import Q_GENERATORS, QDELTA_GENERATORS
 
@@ -92,8 +92,8 @@ class SDCMethod:
 
     def setup_node_data(self):
         prob = self.problem
-        self.u = Solution(num_nodes=self.num_nodes, nvars=prob.nvars, dtype=prob.dtype)
-        self.f = RHS(num_nodes=self.num_nodes, nvars=prob.nvars, dtype=prob.dtype)
+        self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
+        self.f = self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""
