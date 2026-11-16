@@ -1,3 +1,8 @@
+# Architecture
+
+## Overview
+
+```text
 FullyimplicitDAEProblem                   SemiexplicitDAEProblem
            │                                        │
            └────────────────────┬───────────────────┘
@@ -25,3 +30,4 @@ FullyimplicitDAEProblem                   SemiexplicitDAEProblem
                                                      │
                                                      ▼
                                                   Analysis
+```
