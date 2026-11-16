@@ -44,9 +44,13 @@ overall simulation procedure.
 ## Main components
 ### DAEProblem
 While `DAEProblem` is only a parent class, its child classes `FullyimplicitDAEProblem` and `SemiexplicitDAEProblem` define the mathematical problem to be solved. In the `FullyimplicitDAEProblem` class, the DAE problem is written as an IDE of the form
+
 $$0 = F(t, u(t), u'(t)).$$
+
 Semi-explicit DAEs of the form
+
 $$y'(t) = f(y(t), z(t), t),\qquad \qquad 0 = g(y(t), z(t), t)$$
+
 can be implemented using the `SemiexplicitDAEProblem` class, where the differential and algebraic variables $y,\,z$ and their associated equations are separated. Since semi-explicit DAEs can be written as IDEs, a wrapper function is planned to realize this.
 
 ### Numerical methods
