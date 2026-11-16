@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from daelab.base.datatypes.semiexplicit import SemiexplicitArray
 from daelab.base.problems.dae_problem import DAEProblem
 
 
@@ -29,19 +30,31 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     diff_index : int or None
         Differentiation index of the DAE problem.
     t_span : tuple[float, float] or None
-        Time interval (t0, t_end) on which the problem is defined.
-        If None, no specific time interval is prescribed.
+        Time interval `(t0, t_end)` on which the problem is defined.
+        If `None`, no specific time interval is prescribed.
     name : str or None
-        Name of the problem. If None, the class name is used.
+        Name of the problem. If `None`, the class name is used.
+
+    Attributes
+    ----------
+    nvars_diff : tuple of integers
+        Number of unknown differential variables and spatial dimensions.
+    nvars_alg : tuple of integers
+        Number of unknown algebraic variables and spatial dimensions.
+    is_semiexplicit_dae : bool
+       Indicates whether the problem is of semi-explicit form. Set to `True`.
 
     Raises
     ------
     TypeError
-        If diff_index is bool or not an integer.
+        If `diff_index` is bool or not an integer.
     ValueError
-        If t_span does not contain exactly two values or
-        if t_end is not greater than t0.
+        If `t_span` does not contain exactly two values or
+        if `t_end` is not greater than `t0`.
     """
+
+    dtype_u = SemiexplicitArray
+    dtype_f = SemiexplicitArray
 
     def __init__(
         self,
@@ -87,16 +100,16 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Parameters
         ----------
-        y : np.ndarray
+        y : Array
             Numerical solution of differential variables.
-        z : np.ndarray
+        z : Array
             Numerical solution of algebraic variables.
         t : float
             Current time of numerical solution.
 
         Returns
         -------
-        float
+        Array
             Evaluated right-hand side of differential equation
             at current time.
 
@@ -114,16 +127,16 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Parameters
         ----------
-        y : np.ndarray
+        y : Array
             Numerical solution of differential variables.
-        z : np.ndarray
+        z : Array
             Numerical solution of algebraic variables.
         t : float
             Current time of numerical solution.
 
         Returns
         -------
-        np.ndarray
+        Array
             Evaluated right-hand side of algebraic equation
             at current time.
 
@@ -142,24 +155,24 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         ----------
         factor : float
             Local stepsize or any other factor required for quadrature.
-        y0 : np.ndarray
+        y0 : Array
             Initial guess for `y`.
-        z0 : np.ndarray
+        z0 : Array
             Initial guess for `z`.
         t : float
             Current time.
-        rhs_diff : np.ndarray
+        rhs_diff : Array
             Right-hand side for the linear system corresponding to the
             differential equation.
-        rhs_alg : np.ndarray
+        rhs_alg : Array
             Right-hand side for the linear system corresponding to the
             algebraic equation.
 
         Returns
         -------
-        np.ndarray
+        Array
             Solution `y` of the system.
-        np.ndarray
+        Array
             Solution `z` of the system.
 
         Raises
@@ -180,7 +193,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Returns
         -------
-        np.ndarray
+        Array
             Exact solution of `y` at time `t`.
 
         Raises
@@ -203,7 +216,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Returns
         -------
-        np.ndarray
+        Array
             Exact solution of `z` at time `t`.
 
         Raises
