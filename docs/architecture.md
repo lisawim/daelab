@@ -114,6 +114,8 @@ This component is not yet implemented.
 
 # Current development status
 The current implementation work focus on:
-- implementing the first SDC method, namely the $\texttt{SDC-C}$ method from the publication that you can find [here](https://link.springer.com/article/10.1007/s10915-026-03385-7).
+- implementing the first SDC method, namely the $\texttt{SDC-C}$ method from the publication that you can find [here](https://link.springer.com/article/10.1007/s10915-026-03385-7),
+- `TimeStepper` class to perform a single time step,
+- and the `Simulation` class.
 
 We strive to keep this document up-to-date.
