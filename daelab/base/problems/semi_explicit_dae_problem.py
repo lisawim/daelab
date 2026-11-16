@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from daelab.base.datatypes.semiexplicit import SemiexplicitArray
 from daelab.base.problems.dae_problem import DAEProblem
 
 
@@ -42,6 +43,9 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         If t_span does not contain exactly two values or
         if t_end is not greater than t0.
     """
+
+    dtype_u = SemiexplicitArray
+    dtype_f = SemiexplicitArray
 
     def __init__(
         self,

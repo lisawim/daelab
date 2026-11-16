@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
+
+from daelab.base.datatypes.array import Array
 from daelab.base.problems.dae_problem import DAEProblem
 
 
 class FullimplicitDAEProblem(DAEProblem, ABC):
     """Base class for fully-implicit DAE Problems."""
+
+    dtype_u = Array
+    dtype_f = Array
 
     def __init__(
         self,

@@ -1,7 +1,6 @@
+from daelab.base.datatypes.node_list import NodeList
 from daelab.base.methods.sdc import SDCMethod
 from daelab.base.problems.dae_problem import DAEProblem
-from daelab.base.datatypes.semiexplicit_solution import SemiexplicitSolution
-from daelab.base.datatypes.semiexplicit_rhs import SemiexplicitRHS
 
 
 class ConstrainedSDC(SDCMethod):
@@ -38,15 +37,10 @@ class ConstrainedSDC(SDCMethod):
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
-        # raise NotImplementedError("Subclasses must implement compute_defect().")
 
         prob = self.problem
-        defect = SemiexplicitSolution(
-            num_nodes=self.num_nodes,
-            nvars_diff=prob.nvars_diff,
-            nvars_alg=prob.nvars_alg,
-            dtype=prob.dtype,
-        )
+
+        defect = NodeList(prob.dtype_u, prob.init, self.num_nodes - 1)
 
         defect[1:].diff[:] = self.Q @ self.f[1:].diff[:]
         defect[1:].diff[:] -= self.QI @ self.f[1:].diff[:]
@@ -68,8 +62,9 @@ class ConstrainedSDC(SDCMethod):
             nvars_alg=prob.nvars_alg,
             dtype=prob.dtype,
         )
-        rhs[:] = defect[:]
         for m in range(self.num_nodes):
+            rhs = prob.dtype_u(prob.init)
+            rhs[:] = defect[:]
             for j in range(1, m + 1):
                 rhs[m + 1].diff += dt * self.QI[m, j - 1] * self.f[m + 1].diff[:]
 
