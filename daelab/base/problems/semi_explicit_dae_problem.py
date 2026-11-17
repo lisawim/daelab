@@ -37,6 +37,10 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
     Attributes
     ----------
+    init : tuple
+        ``(nvars_diff, nvars_alg, dtype)`` with ``nvars_diff`` and ``nvars_alg``
+        of the form ``(n_unknowns, *spatial)`` with coinciding spatial
+        dimensions, and the data type of the entries.
     nvars_diff : tuple of integers
         Number of unknown differential variables and spatial dimensions.
     nvars_alg : tuple of integers
@@ -73,6 +77,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
             name=name,
         )
 
+        self.init = (nvars_diff, nvars_alg, dtype)
         self.is_semiexplicit_dae = True
 
         if isinstance(nvars_diff, int):

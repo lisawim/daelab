@@ -37,6 +37,9 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
 
     Attributes
     ----------
+    init : tuple
+        ``(nvars, dtype)`` with nvars = (n_unknowns, *spatial) and the data type
+        of the entries.
     nvars : tuple of integers
         Number of unknowns and spatial dimensions.
     is_semiexplicit_dae : bool
@@ -71,6 +74,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
             name=name,
         )
 
+        self.init = (nvars, dtype)
         self.is_semiexplicit_dae = False
 
         if isinstance(nvars, int):

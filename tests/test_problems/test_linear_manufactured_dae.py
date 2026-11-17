@@ -7,6 +7,14 @@ from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
 def test_attributes_are_initialized_by_default_after_instantiation():
     problem = LinearManufacturedDAE()
 
+    assert problem.nvars_diff == problem.nvars_alg == (1,), (
+        "nvars_diff and nvars_alg are not set to (1,)!"
+    )
+    assert problem.dtype == float, "dtype is not set to float!"
+    assert problem.init == (problem.nvars_diff, problem.nvars_alg, problem.dtype), (
+        "init is not correctly set!"
+    )
+    assert problem.is_semiexplicit_dae, "is_semiexplicit_dae is not set to True!"
     assert problem.diff_index == 1, "diff_index is not initialized as one!"
     assert problem.t_span == (0.0, 1.0), "t_span is not initialized as (0.0, 1.0)!"
     assert problem.name == "Linear manufactured DAE", (

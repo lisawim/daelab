@@ -17,6 +17,12 @@ class DummyImplicitDAEWithExactSolution(DummyImplicitDAE):
         return 1.0
 
 
+def test_attribute_init_should_be_tuple_of_dtype_and_nvars(nvars=(1,)):
+    problem = DummyImplicitDAE(nvars=nvars, dtype=complex)
+
+    assert problem.init == (nvars, complex), "init is not set to (nvars, dtype)."
+
+
 def test_attribute_is_semiexplicit_dae_should_set_to_False(nvars=(1,)):
     problem = DummyImplicitDAE(nvars=nvars)
 
