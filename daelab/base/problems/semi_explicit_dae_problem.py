@@ -73,6 +73,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
             name=name,
         )
 
+        self.init = (nvars_diff, nvars_alg, dtype)
         self.is_semiexplicit_dae = True
 
         if isinstance(nvars_diff, int):

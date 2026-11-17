@@ -71,6 +71,7 @@ class FullimplicitDAEProblem(DAEProblem, ABC):
             name=name,
         )
 
+        self.init = (nvars, dtype)
         self.is_semiexplicit_dae = False
 
         if isinstance(nvars, int):
