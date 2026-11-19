@@ -102,8 +102,8 @@ class SDCMethod:
         """Instantiates the datatypes for the method."""
         prob = self.problem
 
-        self.u = NodeList(prob.dtype_u, prob.init, self.method.num_nodes)
-        self.f = NodeList(prob.dtype_f, prob.init, self.method.num_nodes)
+        self.u = NodeList(prob.dtype_u, prob.init, self.num_nodes)
+        self.f = NodeList(prob.dtype_f, prob.init, self.num_nodes)
 
     def set_initial_condition_step(self, u0: Array | SemiexplicitArray):
         self.u[0] = u0

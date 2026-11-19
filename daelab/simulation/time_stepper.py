@@ -25,9 +25,6 @@ class TimeStepper:
     def step(self, u0: Array | SemiexplicitArray, t: float, dt: float):
         """Executes a single time step of size dt."""
 
-        method = self.method
-
-        # u0 in NodeList u einsetzen + auch f an u0 auswerten + in NodeList einfügen
         # method.u[0] = u0
 
         # method.init_node_values(self, u0)
@@ -37,3 +34,4 @@ class TimeStepper:
 
         # Performs a collocation update if the method is not stiffly accurate
         # method.step_update()
+        raise NotImplementedError("step is not yet implemented.")
