@@ -1,8 +1,10 @@
 import numpy as np
 
-from daelab.base.problems.dae_problem import DAEProblem
+
 from daelab.base.datatypes.array import Array
 from daelab.base.datatypes.node_list import NodeList
+from daelab.base.datatypes.semiexplicit import SemiexplicitArray
+from daelab.base.problems.dae_problem import DAEProblem
 
 from qmat import Q_GENERATORS, QDELTA_GENERATORS
 
@@ -86,14 +88,26 @@ class SDCMethod:
         self.u = None
         self.f = None
 
+    @property
+    def problem(self):
+        """Getter for the problem."""
+        return self.__problem
+
     def setup(self, problem: DAEProblem) -> None:
-        self.problem = problem
+        """Sets the problem as attribute to the class."""
+        self.__problem = problem
         self.setup_node_data()
 
     def setup_node_data(self):
+        """Instantiates the datatypes for the method."""
         prob = self.problem
-        self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
-        self.f = self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
+
+        self.u = NodeList(prob.dtype_u, prob.init, self.method.num_nodes)
+        self.f = NodeList(prob.dtype_f, prob.init, self.method.num_nodes)
+
+    def set_initial_condition_step(self, u0: Array | SemiexplicitArray):
+        self.u[0] = u0
+        # self.f[0] = self.problem.
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""
@@ -129,8 +143,9 @@ class SDCMethod:
 
         return QDelta_expl
 
-    def init_node_values(self):
+    def init_node_values(self, u0):
         """Initializes the values at internal nodes."""
+        self.f[0] = self.problem.
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
