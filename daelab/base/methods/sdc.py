@@ -93,7 +93,7 @@ class SDCMethod:
     def setup_node_data(self):
         prob = self.problem
         self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
-        self.f = self.u = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
+        self.f = NodeList(Array, ((prob.nvars, prob.dtype)), self.num_nodes)
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""
