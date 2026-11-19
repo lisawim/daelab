@@ -143,9 +143,9 @@ class SDCMethod:
 
         return QDelta_expl
 
-    def init_node_values(self, u0):
+    def init_node_values(self):
         """Initializes the values at internal nodes."""
-        self.f[0] = self.problem.
+        raise NotImplementedError("Subclasses must implement init_node_values().")
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
