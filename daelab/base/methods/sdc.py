@@ -1,9 +1,7 @@
 import numpy as np
 
 
-from daelab.base.datatypes.array import Array
 from daelab.base.datatypes.node_list import NodeList
-from daelab.base.datatypes.semiexplicit import SemiexplicitArray
 from daelab.base.problems.dae_problem import DAEProblem
 
 from qmat import Q_GENERATORS, QDELTA_GENERATORS
@@ -104,10 +102,6 @@ class SDCMethod:
 
         self.u = NodeList(prob.dtype_u, prob.init, self.num_nodes)
         self.f = NodeList(prob.dtype_f, prob.init, self.num_nodes)
-
-    def set_initial_condition_step(self, u0: Array | SemiexplicitArray):
-        self.u[0] = u0
-        # self.f[0] = self.problem.
 
     def _generate_coefficients(self):
         """Generate coefficients for SDC method."""
