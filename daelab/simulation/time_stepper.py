@@ -28,12 +28,12 @@ class TimeStepper:
         method = self.method
 
         # u0 in NodeList u einsetzen + auch f an u0 auswerten + in NodeList einfügen
-        method.u[0] = u0
+        # method.u[0] = u0
 
-        method.init_node_values(self, u0)
+        # method.init_node_values(self, u0)
 
         # Update of the numerical solution at nodes
-        method.update_node_values()
+        # method.update_node_values()
 
         # Performs a collocation update if the method is not stiffly accurate
-        method.step_update()
+        # method.step_update()
