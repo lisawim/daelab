@@ -18,7 +18,6 @@ class DummyMethod(Method):
 
     def setup(self, problem: DAEProblem):
         self.problem = problem
-        print("Setup is called.")
 
 
 def test_raises_type_error_without_setup(nvars=(1,)):
@@ -82,6 +81,7 @@ def test_require_setup_does_not_raise_if_problem_is_set():
 
     bound = method.bind(problem)
 
+    assert method.problem is None
     assert bound.problem is not None
 
     bound._require_setup()
