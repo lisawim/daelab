@@ -16,8 +16,9 @@ class IncompleteMethod(Method):
 class DummyMethod(Method):
     """Dummy class with setup method."""
 
-    def setup(self, problem):
+    def setup(self, problem: DAEProblem):
         self.problem = problem
+        print("Setup is called.")
 
 
 def test_raises_type_error_without_setup(nvars=(1,)):
@@ -71,3 +72,16 @@ def test_require_setup_should_raise_runtime_error_if_problem_is_still_None():
     )
     with pytest.raises(RuntimeError, match=match):
         method._require_setup()
+
+
+def test_require_setup_does_not_raise_if_problem_is_set():
+    method = DummyMethod()
+    problem = LinearManufacturedDAE()
+
+    assert method.problem is None
+
+    bound = method.bind(problem)
+
+    assert bound.problem is not None
+
+    bound._require_setup()

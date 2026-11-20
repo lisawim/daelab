@@ -59,7 +59,9 @@ class Method(ABC):
         sets up the problem for this copy and returns it. Thus, one
         configuration of a method can be bound to several problems or
         timesteppers, and every bound copy has its own ``problem`` and its own
-        data that is created in ``setup``.
+        data that is created in ``setup``. Be aware that only the copy
+        created in ``bind`` has self.problem that is not None. The original
+        instance still has ``self.problem`` stored as ``None``.
 
         Parameters
         ----------
@@ -78,7 +80,9 @@ class Method(ABC):
 
     def _require_setup(self):
         """
-        Checks that the method is set up for a problem.
+        Checks that the method is set up for a problem. Be aware that only the
+        copy created in ``bind`` has self.problem that is not None. The original
+        instance still has ``self.problem`` stored as ``None``.
 
         Raises
         ------
