@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 import copy
 
 from daelab.base.problems.dae_problem import DAEProblem
 
 
-class Method:
+class Method(ABC):
     """
     Base class of time-stepping methods.
 
@@ -32,6 +33,7 @@ class Method:
         """Initialization routine."""
         self.problem = None
 
+    @abstractmethod
     def setup(self, problem: DAEProblem):
         """
         Ties the method to ``problem`` and creates the data that depends on it.
@@ -47,7 +49,7 @@ class Method:
         NotImplementedError
             If the subclasses does not implemented the method.
         """
-        raise NotImplementedError("Subclasses must implement setup().")
+        raise NotImplementedError("Subclasses must implement setup(problem).")
 
     def bind(self, problem: DAEProblem):
         """
