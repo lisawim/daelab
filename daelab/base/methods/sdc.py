@@ -2,12 +2,13 @@ import numpy as np
 
 
 from daelab.base.datatypes.node_list import NodeList
+from daelab.base.methods.method import Method
 from daelab.base.problems.dae_problem import DAEProblem
 
 from qmat import Q_GENERATORS, QDELTA_GENERATORS
 
 
-class SDCMethod:
+class SDCMethod(Method):
     """
     SDC method class for general DAE problems.
 
