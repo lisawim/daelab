@@ -8,8 +8,7 @@ class TimeStepper:
     def __init__(
         self, problem: DAEProblem, method: SDCMethod, maxiter: int, restol: float
     ):
-        self.__method = method
-        self.method.setup(problem)
+        self.__method = method.bind(problem)
         self.maxiter, self.restol = maxiter, restol
 
     @property
