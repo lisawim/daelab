@@ -60,3 +60,14 @@ def test_method_should_create_independent_node_lists_for_different_problems():
 
     assert sdc_a.u is not sdc_b.u
     assert sdc_a.f is not sdc_b.f
+
+
+def test_require_setup_should_raise_runtime_error_if_problem_is_still_None():
+    method = DummyMethod()
+
+    match = (
+        r"DummyMethod is not set up. Use TimeStepper\(method, problem\)"
+        r" or method.bind\(problem\)\."
+    )
+    with pytest.raises(RuntimeError, match=match):
+        method._require_setup()
