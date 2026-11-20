@@ -1,5 +1,36 @@
 class DAEProblem:
-    """Base class for differential-algebraic equations problems."""
+    """
+    Base class for differential-algebraic equation problems.
+
+    Parameters
+    ----------
+    dtype : type
+        Datatype of the solution. Default is `float`.
+    diff_index : int or None
+        Differentiation index of the DAE problem.
+    t_span : tuple[float, float] or None
+        Time interval (t0, t_end) on which the problem is defined.
+        If None, no specific time interval is prescribed.
+    name : str or None
+        Name of the problem. If None, the class name is used.
+
+    Attributes
+    ----------
+    dtype : type
+        Datatype of the solution.
+    diff_index : int or None
+        Differentiation index.
+    name : str or None
+        Name of the problem.
+
+    Raises
+    ------
+    TypeError
+        If `diff_index` is bool or not an integer.
+    ValueError
+        If `t_span` does not contain exactly two values or if `t_end` is not
+        greater than `t0`.
+    """
 
     def __init__(
         self,
@@ -8,29 +39,7 @@ class DAEProblem:
         t_span: tuple[float, float] | None = None,
         name: str | None = None,
     ):
-        """
-        Initializes a DAE Problem.
-
-        Parameters
-        ----------
-        dtype : type
-            Datatype of the solution. Default is float.
-        diff_index : int or None
-            Differentiation index of the DAE problem.
-        t_span : tuple[float, float] or None
-            Time interval (t0, t_end) on which the problem is defined.
-            If None, no specific time interval is prescribed.
-        name : str or None
-            Name of the problem. If None, the class name is used.
-
-        Raises
-        ------
-        TypeError
-            If diff_index is bool or not an integer.
-        ValueError
-            If t_span does not contain exactly two values or
-            if t_end is not greater than t0.
-        """
+        """Initializes a DAE Problem."""
 
         self.dtype = dtype
 
@@ -58,7 +67,21 @@ class DAEProblem:
 
     @staticmethod
     def validate_nvars(nvars: tuple[int, ...]):
-        """Validates that nvars is of correct shape and entries."""
+        """
+        Validates that `nvars` is of correct shape and entries.
+
+        Parameters
+        ----------
+        nvars : tuple of integers
+            Number of unknowns and spatial dimensions to check.
+
+        Raises
+        ------
+        TypeError
+            If `nvars` is not a tuple.
+        ValueError
+            If `nvars` is None or `nvars` contains nonpositive integers.
+        """
         if not isinstance(nvars, tuple):
             raise TypeError("nvars must be a tuple.")
 
@@ -70,12 +93,36 @@ class DAEProblem:
 
     @property
     def t_span(self) -> tuple[float, float] | None:
+        """
+        Property `t_span`.
+
+        Returns
+        -------
+        tuple
+            The time interval.
+        """
         return self._t_span
 
     @property
     def t0(self) -> float | None:
+        """
+        Property `t0`.
+
+        Returns
+        -------
+        float or None
+            The initial time.
+        """
         return None if self._t_span is None else self._t_span[0]
 
     @property
     def t_end(self) -> float | None:
+        """
+        Property `t_end`.
+
+        Returns
+        -------
+        float or None
+            The end time.
+        """
         return None if self._t_span is None else self._t_span[1]

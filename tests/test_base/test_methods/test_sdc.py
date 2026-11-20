@@ -136,6 +136,13 @@ def test_get_QDelta_explicit_returns_lower_triangular_matrix():
     assert QE.shape == (num_nodes, num_nodes)
 
 
+def test_init_node_values_should_raise_not_implemented_error():
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    err_msg_match = r"Subclasses must implement init_node_values\(\)."
+    with pytest.raises(NotImplementedError, match=err_msg_match):
+        sdc.init_node_values()
+
+
 def test_compute_defect_should_raise_not_implemented_error():
     sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
     err_msg_match = r"Subclasses must implement compute_defect\(\)."

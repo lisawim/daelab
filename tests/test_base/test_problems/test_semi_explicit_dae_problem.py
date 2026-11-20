@@ -41,6 +41,18 @@ class DummyMissingG(SemiexplicitDAEProblem):
         return -y + z
 
 
+def test_attribute_init_should_be_tuple_of_dtype_and_nvars(
+    nvars_diff=(1,), nvars_alg=(3,)
+):
+    problem = DummySemiexplicitDAE(
+        nvars_diff=nvars_diff, nvars_alg=nvars_alg, dtype=complex
+    )
+
+    assert problem.init == (nvars_diff, nvars_alg, complex), (
+        "init is not set to (nvars, dtype)."
+    )
+
+
 def test_attribute_is_semiexplicit_dae_should_set_to_True(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
