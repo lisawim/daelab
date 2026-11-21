@@ -3,23 +3,6 @@ import numpy as np
 from daelab.base.datatypes.arithmetic import ArithmeticMethods
 
 
-def _assign(target, value):
-    """
-    Writes `value` into `target` (in-place).
-
-    Parameters
-    ----------
-    target : np.ndarray or Array
-        The array where ``value`` should be written into.
-    value : scalar or np.ndarray
-        The value to be written into the array.
-    """
-    if isinstance(target, np.ndarray):
-        target[...] = value
-    else:
-        target.assign(value)
-
-
 class Array(ArithmeticMethods):
     """
     Base class for arrays of general problems.
@@ -163,17 +146,6 @@ class Array(ArithmeticMethods):
         new = type(self).__new__(type(self))
         new.values = self.values.copy()
         return new
-
-    def assign(self, value):
-        """
-        Writes value into the stored array in-place.
-
-        Parameters
-        ----------
-        value : Array or other
-            The value for assignment.
-        """
-        self.values[...] = value.values if isinstance(value, Array) else value
 
     def flat(self):
         """

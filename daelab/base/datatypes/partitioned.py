@@ -1,7 +1,7 @@
 import numpy as np
 
 from daelab.base.datatypes.arithmetic import ArithmeticMethods
-from daelab.base.datatypes.array import _assign, Array
+from daelab.base.datatypes.array import Array
 from daelab.base.datatypes.node_list import NodeList
 
 
@@ -41,7 +41,7 @@ class PartitionedArray(ArithmeticMethods):
     >>> p = Pair(((2, 3), float))
     >>> p.a.shape, p.b.shape
     (2, 3), (2, 3)
-    >>> p.assign((2.0, 3.0))
+    >>> p[:] = (2.0, 3.0)
     >>> p.a[:]
     [[2. 2. 2.]
     [2. 2. 2.]]
@@ -81,7 +81,7 @@ class PartitionedArray(ArithmeticMethods):
         """
         return iter(self._parts)
 
-    def assign(self, value):
+    def __setitem__(self, key, value):
         """
         Writes `value` into the parts (in-place).
 
@@ -90,7 +90,25 @@ class PartitionedArray(ArithmeticMethods):
         value : scalar, tuple or object of the same type
             A scalar is written into all parts, a tuple contains one
             value per part, in the order of ``_components``.
+
+        Raises
+        ------
+        IndexError
+            If ``key`` is not ``:`` or ``...``. Other keys, such as ``0``,
+            ``0:`` or ``"diff"``, are not supported. To write into a single
+            part, use the part itself, e.g., ``self.diff[...] = value``.
+        TypeError
+            If ``value`` is a numpy array.
+        ValueError
+            If ``value`` is an object of another type with different parts, or a
+            sequence with a wrong number of values, or if a value cannot be
+            broadcast to the shape of its part.
         """
+        if not (key is Ellipsis or (isinstance(key, slice) and key == slice(None))):
+            raise IndexError(
+                "Only self[:] and self[...] are supported. To write into a "
+                "single part, use the part itself, e.g., self.diff[...] = value."
+            )
         if isinstance(value, PartitionedArray):
             if value._components != self._components:
                 raise ValueError("Operands must have the same parts.")
@@ -110,7 +128,7 @@ class PartitionedArray(ArithmeticMethods):
                     f"{self._components}, got {len(values)} values."
                 )
         for part, val in zip(self._parts, values, strict=False):
-            _assign(part, val)
+            part[...] = val
 
     def copy(self):
         """

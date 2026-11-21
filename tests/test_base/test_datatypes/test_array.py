@@ -3,40 +3,9 @@ import operator
 import pytest
 
 from daelab.base.datatypes.arithmetic import ArithmeticMethods
-from daelab.base.datatypes.array import _assign, Array
+from daelab.base.datatypes.array import Array
 
 OPERATORS = [operator.add, operator.sub, operator.mul, operator.truediv]
-
-
-class Recorder:
-    """Target that is not a numpy array and records calls of assign."""
-
-    def __init__(self):
-        self.calls = []
-
-    def assign(self, value):
-        self.calls.append(value)
-
-
-def test_assign_to_ndarray_writes_values_in_place():
-    target = np.zeros((2, 3, 4))
-    view = target[1]
-
-    val = np.arange(24, dtype=float).reshape(2, 3, 4)
-
-    _assign(target, val)
-
-    assert np.array_equal(target, val)
-    assert np.array_equal(val[1], view)
-
-
-def test_assign_to_other_target_calls_its_assign_method():
-    target = Recorder()
-    val = object()
-
-    _assign(target, val)
-
-    assert target.calls == [val]
 
 
 def test_class_initializes_array_of_desired_shape_and_dtype():
@@ -212,12 +181,6 @@ def test_setitem_copies_input(zero_array):
     )
 
 
-@pytest.mark.parametrize("val", [np.ones((4, 3)), np.ones((2, 4))])
-def test_setitem_should_raise_value_error_if_shape_does_not_match(zero_array, val):
-    with pytest.raises(ValueError):
-        zero_array[0] = val
-
-
 @pytest.mark.parametrize("ind", [2, -3])
 def test_setitem_should_raise_index_error_if_index_is_out_of_range(zero_array, ind):
     with pytest.raises(IndexError):
@@ -326,34 +289,34 @@ def test_copy_returns_independent_object_with_equal_values(filled_array):
 
 
 @pytest.mark.parametrize("val", [0.0, 3.5, -1])
-def test_assign_scalar_writes_all_entries(zero_array, val):
-    zero_array.assign(val)
+def test_setitem_scalar_writes_all_entries(zero_array, val):
+    zero_array[:] = val
 
     assert np.all(zero_array.values == val), "val isn't written to all entries."
 
 
-def test_assign_numpy_array_writes_values(zero_array):
+def test_setitem_numpy_array_writes_values(zero_array):
     val = np.arange(24, dtype=float).reshape(2, 3, 4)
 
-    zero_array.assign(val)
+    zero_array[:] = val
 
     assert np.array_equal(zero_array.values, val), (
         "numpy array is not written into array."
     )
 
 
-def test_assign_array_writes_values_of_other_array(zero_array, filled_array):
-    zero_array.assign(filled_array)
+def test_setitem_array_writes_values_of_other_array(zero_array, filled_array):
+    zero_array[:] = filled_array
 
     assert np.array_equal(zero_array.values, filled_array.values), (
         "Array is not written into other array."
     )
 
 
-def test_assign_array_does_not_share_memory_with_other_array(zero_array, filled_array):
+def test_setitem_array_does_not_share_memory_with_other_array(zero_array, filled_array):
     original = filled_array.values.copy()
 
-    zero_array.assign(filled_array)
+    zero_array[:] = filled_array
     zero_array[...] = -1.0
 
     assert not np.shares_memory(zero_array.values, filled_array.values), (
@@ -364,40 +327,23 @@ def test_assign_array_does_not_share_memory_with_other_array(zero_array, filled_
     )
 
 
-def test_assign_does_not_replace_values_array(zero_array):
-    ref = zero_array.values
-
-    zero_array.assign(5.0)
-
-    assert zero_array.values is ref
-
-
-def test_assign_copies_input(zero_array):
-    val = np.ones((2, 3, 4))
-
-    zero_array.assign(val)
-    val[:] = 9.0
-
-    assert np.all(zero_array.values == 1.0), (
-        "Values in array have been changed after assigning."
-    )
-
-
-def test_assign_broadcasts_array_of_lower_dimension(zero_array):
-    zero_array.assign(np.arange(4.0))
+def test_setitem_broadcasts_array_of_lower_dimension(zero_array):
+    zero_array[:] = np.arange(4.0)
 
     assert np.array_equal(zero_array.values, np.broadcast_to(np.arange(4.0), (2, 3, 4)))
 
 
 @pytest.mark.parametrize("val", [np.ones((3, 2)), np.ones((2, 3, 5))])
-def test_assign_should_raise_value_error_if_shape_does_not_match(zero_array, val):
+def test_setitem_should_raise_value_error_if_shape_does_not_match(zero_array, val):
     with pytest.raises(ValueError):
-        zero_array.assign(val)
+        zero_array[:] = val
 
 
-def test_assign_should_raise_value_error_if_other_array_has_different_shape(zero_array):
+def test_setitem_should_raise_value_error_if_other_array_has_different_shape(
+    zero_array,
+):
     with pytest.raises(ValueError):
-        zero_array.assign(Array(((2, 3, 5), float)))
+        zero_array[:] = Array(((2, 3, 5), float))
 
 
 @pytest.mark.parametrize("nvars", [(1,), (3,), (2, 4), (2, 3, 4)])
