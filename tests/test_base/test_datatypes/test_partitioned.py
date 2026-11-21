@@ -1,6 +1,7 @@
 import numpy as np
 import operator
 import pytest
+import re
 
 from daelab.base.datatypes.node_list import NodeList
 from daelab.base.datatypes.partitioned import (
@@ -72,7 +73,7 @@ def test_parts_and_iteration_return_components_in_order():
     assert comp1 is a.comp1 and comp2 is a.comp2
 
 
-def test_assign_scalar_writes_all_parts(zero_imex_array):
+def test_setitem_scalar_writes_all_parts(zero_imex_array):
     zero_imex_array[:] = 3.0
 
     assert np.all(zero_imex_array.diff.impl.values == 3.0)
@@ -86,7 +87,7 @@ def test_assign_scalar_writes_all_parts(zero_imex_array):
     assert np.all(a.comp2 == 7.0)
 
 
-def test_assign_sequence_writes_each_part(zero_array):
+def test_setitem_sequence_writes_each_part(zero_array):
     zero_array[:] = (diff_values(), alg_values())
 
     assert np.array_equal(zero_array.diff.values, diff_values())
@@ -102,7 +103,7 @@ def test_assign_sequence_writes_each_part(zero_array):
     assert np.all(comp2 == 20)
 
 
-def test_assign_same_type_writes_nested_parts_and_stays_independent(
+def test_setitem_same_type_writes_nested_parts_and_stays_independent(
     zero_imex_array, filled_imex_array
 ):
     zero_imex_array[:] = filled_imex_array
@@ -124,7 +125,7 @@ def test_assign_same_type_writes_nested_parts_and_stays_independent(
     assert np.all(a.comp2 == 20)
 
 
-def test_assign_writes_in_place_into_existing_parts(zero_array):
+def test_setitem_writes_in_place_into_existing_parts(zero_array):
     diff, alg = zero_array.diff, zero_array.alg
     diff_array, alg_array = diff.values, alg.values
 
@@ -134,7 +135,7 @@ def test_assign_writes_in_place_into_existing_parts(zero_array):
     assert zero_array.diff.values is diff_array and zero_array.alg.values is alg_array
 
 
-def test_assign_should_raise_value_error_if_components_differ():
+def test_setitem_should_raise_value_error_if_components_differ():
     a = DummyArray()
 
     err_msg_match = "Operands must have the same parts."
@@ -142,7 +143,7 @@ def test_assign_should_raise_value_error_if_components_differ():
         a[:] = OtherArray()
 
 
-def test_assign_should_raise_type_error_if_value_is_np_array(zero_array):
+def test_setitem_should_raise_type_error_if_value_is_np_array(zero_array):
     err_msg_match = "Expected a scalar, a tuple with one value per part, or "
     f"an object of type {type(zero_array).__name__}, not a numpy array."
     with pytest.raises(TypeError, match=err_msg_match):
@@ -150,11 +151,21 @@ def test_assign_should_raise_type_error_if_value_is_np_array(zero_array):
 
 
 @pytest.mark.parametrize("vals", [(1.0,), (1.0, 2.0, 3.0)])
-def test_assign_should_raise_value_error_if_length_of_values_differ(vals, zero_array):
+def test_setitem_should_raise_value_error_if_length_of_values_differ(vals, zero_array):
     err_msg_match = f"Expected {len(zero_array._components)} values: "
     f"{zero_array._components}, got {len(vals)} values."
     with pytest.raises(ValueError, match=err_msg_match):
         zero_array[:] = vals
+
+
+@pytest.mark.parametrize("key", [0, "key", slice(0, 5), (..., 0)])
+def test_setitem_should_raise_index_error_if_key_is_invalid(key, zero_array):
+    msg = (
+        "Only self[:] and self[...] are supported. To write into a "
+        "single part, use the part itself, e.g., self.diff[...] = value."
+    )
+    with pytest.raises(IndexError, match=re.escape(msg)):
+        zero_array[key] = 1.0
 
 
 def test_copy_creates_independent_array():
