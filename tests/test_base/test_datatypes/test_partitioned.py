@@ -73,21 +73,21 @@ def test_parts_and_iteration_return_components_in_order():
 
 
 def test_assign_scalar_writes_all_parts(zero_imex_array):
-    zero_imex_array.assign(3.0)
+    zero_imex_array[:] = 3.0
 
     assert np.all(zero_imex_array.diff.impl.values == 3.0)
     assert np.all(zero_imex_array.diff.expl.values == 3.0)
     assert np.all(zero_imex_array.alg.values == 3.0)
 
     a = DummyArray()
-    a.assign(7.0)
+    a[:] = 7.0
 
     assert np.all(a.comp1 == 7.0)
     assert np.all(a.comp2 == 7.0)
 
 
 def test_assign_sequence_writes_each_part(zero_array):
-    zero_array.assign((diff_values(), alg_values()))
+    zero_array[:] = (diff_values(), alg_values())
 
     assert np.array_equal(zero_array.diff.values, diff_values())
     assert np.array_equal(zero_array.alg.values, alg_values())
@@ -95,7 +95,7 @@ def test_assign_sequence_writes_each_part(zero_array):
     a = DummyArray()
     comp1, comp2 = a.comp1, a.comp2
 
-    a.assign((np.full((3, 2), 10), np.full((3, 1), 20)))
+    a[:] = (np.full((3, 2), 10), np.full((3, 1), 20))
 
     assert a.comp1 is comp1 and a.comp2 is comp2
     assert np.all(comp1 == 10)
@@ -105,8 +105,8 @@ def test_assign_sequence_writes_each_part(zero_array):
 def test_assign_same_type_writes_nested_parts_and_stays_independent(
     zero_imex_array, filled_imex_array
 ):
-    zero_imex_array.assign(filled_imex_array)
-    zero_imex_array.assign(-1.0)
+    zero_imex_array[:] = filled_imex_array
+    zero_imex_array[:] = -1.0
 
     assert np.array_equal(filled_imex_array.diff.impl.values, diff_values())
     assert np.array_equal(filled_imex_array.diff.expl.values, -diff_values())
@@ -116,7 +116,7 @@ def test_assign_same_type_writes_nested_parts_and_stays_independent(
     other.comp1[...] = 10
     other.comp2[...] = 20
 
-    a.assign(other)
+    a[:] = other
     other.comp1[...] = -1
     other.comp2[...] = -1
 
@@ -128,7 +128,7 @@ def test_assign_writes_in_place_into_existing_parts(zero_array):
     diff, alg = zero_array.diff, zero_array.alg
     diff_array, alg_array = diff.values, alg.values
 
-    zero_array.assign((diff_values(), alg_values()))
+    zero_array[:] = (diff_values(), alg_values())
 
     assert zero_array.diff is diff and zero_array.alg is alg
     assert zero_array.diff.values is diff_array and zero_array.alg.values is alg_array
@@ -139,14 +139,14 @@ def test_assign_should_raise_value_error_if_components_differ():
 
     err_msg_match = "Operands must have the same parts."
     with pytest.raises(ValueError, match=err_msg_match):
-        a.assign(OtherArray())
+        a[:] = OtherArray()
 
 
 def test_assign_should_raise_type_error_if_value_is_np_array(zero_array):
     err_msg_match = "Expected a scalar, a tuple with one value per part, or "
     f"an object of type {type(zero_array).__name__}, not a numpy array."
     with pytest.raises(TypeError, match=err_msg_match):
-        zero_array.assign(np.ones((2, 3, 4)))
+        zero_array[:] = np.ones((2, 3, 4))
 
 
 @pytest.mark.parametrize("vals", [(1.0,), (1.0, 2.0, 3.0)])
@@ -154,7 +154,7 @@ def test_assign_should_raise_value_error_if_length_of_values_differ(vals, zero_a
     err_msg_match = f"Expected {len(zero_array._components)} values: "
     f"{zero_array._components}, got {len(vals)} values."
     with pytest.raises(ValueError, match=err_msg_match):
-        zero_array.assign(vals)
+        zero_array[:] = vals
 
 
 def test_copy_creates_independent_array():
