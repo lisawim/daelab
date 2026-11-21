@@ -181,12 +181,6 @@ def test_setitem_copies_input(zero_array):
     )
 
 
-@pytest.mark.parametrize("val", [np.ones((4, 3)), np.ones((2, 4))])
-def test_setitem_should_raise_value_error_if_shape_does_not_match(zero_array, val):
-    with pytest.raises(ValueError):
-        zero_array[0] = val
-
-
 @pytest.mark.parametrize("ind", [2, -3])
 def test_setitem_should_raise_index_error_if_index_is_out_of_range(zero_array, ind):
     with pytest.raises(IndexError):
@@ -333,25 +327,6 @@ def test_setitem_array_does_not_share_memory_with_other_array(zero_array, filled
     )
 
 
-def test_setitem_does_not_replace_values_array(zero_array):
-    ref = zero_array.values
-
-    zero_array[:] = 5.0
-
-    assert zero_array.values is ref
-
-
-def test_setitem_copies_input(zero_array):
-    val = np.ones((2, 3, 4))
-
-    zero_array[:] = val
-    val[:] = 9.0
-
-    assert np.all(zero_array.values == 1.0), (
-        "Values in array have been changed after assigning."
-    )
-
-
 def test_setitem_broadcasts_array_of_lower_dimension(zero_array):
     zero_array[:] = np.arange(4.0)
 
@@ -364,7 +339,9 @@ def test_setitem_should_raise_value_error_if_shape_does_not_match(zero_array, va
         zero_array[:] = val
 
 
-def test_setitem_should_raise_value_error_if_other_array_has_different_shape(zero_array):
+def test_setitem_should_raise_value_error_if_other_array_has_different_shape(
+    zero_array,
+):
     with pytest.raises(ValueError):
         zero_array[:] = Array(((2, 3, 5), float))
 

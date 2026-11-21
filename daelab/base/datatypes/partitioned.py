@@ -102,7 +102,7 @@ class PartitionedArray(ArithmeticMethods):
         ValueError
             If ``value`` is an object of another type with different parts, or a
             sequence with a wrong number of values, or if a value cannot be
-            broadcast to the shape of its part.            
+            broadcast to the shape of its part.
         """
         if not (key is Ellipsis or (isinstance(key, slice) and key == slice(None))):
             raise IndexError(
