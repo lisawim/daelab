@@ -30,13 +30,13 @@ def test_attributes_are_initialized_by_default_after_instantiation():
         ((np.exp(-4.0), -2.0 * np.exp(-4.0)), 1.0, -4.0 * np.exp(-4.0)),
     ],
 )
-def test_f_returns_correct_rhs(y_z, t, expected):
+def test_f_diff_returns_correct_rhs(y_z, t, expected):
     problem = LinearManufacturedDAE()
 
     u = problem.dtype_u(problem.init)
     u[:] = y_z
 
-    np.testing.assert_allclose(problem.f(u, t), expected)
+    np.testing.assert_allclose(problem.f_diff(u, t), expected)
 
 
 @pytest.mark.parametrize(
@@ -47,12 +47,12 @@ def test_f_returns_correct_rhs(y_z, t, expected):
         ((np.exp(-4.0), -2.0 * np.exp(-4.0)), 1.0),
     ],
 )
-def test_g_returns_correct_rhs(y_z, t):
+def test_f_alg_returns_zero(y_z, t):
     problem = LinearManufacturedDAE()
 
     u = problem.dtype_u(problem.init)
     u[:] = y_z
-    np.testing.assert_allclose(problem.g(u, t), 0.0)
+    np.testing.assert_allclose(problem.f_alg(u, t), 0.0)
 
 
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
@@ -96,4 +96,4 @@ def test_exact_solution_is_consistent_with_dae(t):
     y_dot = -4 * np.exp(-4 * t)
 
     # Consistency checked for y_dot; consistency for g is already checked above
-    np.testing.assert_allclose(y_dot, problem.f(u, t))
+    np.testing.assert_allclose(y_dot, problem.f_diff(u, t))

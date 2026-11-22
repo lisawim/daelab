@@ -48,6 +48,11 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     is_semiexplicit_dae : bool
        Indicates whether the problem is of semi-explicit form. Set to `True`.
 
+    Notes
+    -----
+    The corresponding methods for the right-hand sides :math:`f` and :math:`g`
+    are ``f_diff`` and ``f_alg``.
+
     Raises
     ------
     TypeError
@@ -99,7 +104,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         self.nvars_alg = nvars_alg
 
     @abstractmethod
-    def f(self, u, t):
+    def f_diff(self, u, t):
         """
         Evaluate the differential equation `f(u, t)`.
 
@@ -121,10 +126,10 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         NotImplementedError
             If the subclasses did not implemented the method.
         """
-        raise NotImplementedError("Subclasses must implement f(u, t).")
+        raise NotImplementedError("Subclasses must implement f_diff(u, t).")
 
     @abstractmethod
-    def g(self, u, t):
+    def f_alg(self, u, t):
         """
         Evaluate the algebraic equation `g(u, t)`.
 
@@ -146,7 +151,7 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         NotImplementedError
            If the subclasses did not implemented the method.
         """
-        raise NotImplementedError("Subclasses must implement g(u, t).")
+        raise NotImplementedError("Subclasses must implement f_alg(u, t).")
 
     def solve_system(self, factor, u0, t, rhs):
         """
