@@ -23,75 +23,77 @@ def test_attributes_are_initialized_by_default_after_instantiation():
 
 
 @pytest.mark.parametrize(
-    "y, z, t, expected",
+    "y_z, t, expected",
     [
-        (1.0, -2.0, 0.0, -4.0),
-        (np.exp(-2.0), -2.0 * np.exp(-2.0), 0.5, -4.0 * np.exp(-2.0)),
-        (np.exp(-4.0), -2.0 * np.exp(-4.0), 1.0, -4.0 * np.exp(-4.0)),
+        ((1.0, -2.0), 0.0, -4.0),
+        ((np.exp(-2.0), -2.0 * np.exp(-2.0)), 0.5, -4.0 * np.exp(-2.0)),
+        ((np.exp(-4.0), -2.0 * np.exp(-4.0)), 1.0, -4.0 * np.exp(-4.0)),
     ],
 )
-def test_f_returns_correct_rhs(y, z, t, expected):
+def test_f_returns_correct_rhs(y_z, t, expected):
     problem = LinearManufacturedDAE()
 
-    assert problem.f(y, z, t) == pytest.approx(expected), (
-        "Computed rhs does not match with expected rhs!"
-    )
+    u = problem.dtype_u(problem.init)
+    u[:] = y_z
+
+    np.testing.assert_allclose(problem.f(u, t), expected)
 
 
 @pytest.mark.parametrize(
-    "y, z, t",
+    "y_z, t",
     [
-        (1.0, -2.0, 0.0),
-        (np.exp(-2.0), -2.0 * np.exp(-2.0), 0.5),
-        (np.exp(-4.0), -2.0 * np.exp(-4.0), 1.0),
+        ((1.0, -2.0), 0.0),
+        ((np.exp(-2.0), -2.0 * np.exp(-2.0)), 0.5),
+        ((np.exp(-4.0), -2.0 * np.exp(-4.0)), 1.0),
     ],
 )
-def test_g_returns_correct_rhs(y, z, t):
+def test_g_returns_correct_rhs(y_z, t):
     problem = LinearManufacturedDAE()
 
-    assert problem.g(y, z, t) == 0.0, "Computed rhs does not match with expected rhs!"
+    u = problem.dtype_u(problem.init)
+    u[:] = y_z
+    np.testing.assert_allclose(problem.g(u, t), 0.0)
 
 
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
-def test_y_exact_returns_correct_solution(t):
+def test_u_exact_returns_correct_solution(t):
     problem = LinearManufacturedDAE()
 
-    assert problem.y_exact(t) == np.exp(-4 * t), (
-        "Computed solution does not match with expected solution!"
-    )
+    u = problem.u_exact(t)
+    y, z = u
+
+    np.testing.assert_allclose(y, np.exp(-4 * t))
+    np.testing.assert_allclose(z, -2 * np.exp(-4 * t))
 
 
 def test_solve_system_accurately_solves_the_node_system():
     prob = LinearManufacturedDAE()
 
     t0 = 0.0
-    y0, z0 = prob.y_exact(t=t0), prob.z_exact(t=t0)
+    u0 = prob.u_exact(t=t0)
+    y0, z0 = u0
+
+    u0, rhs = prob.dtype_u(prob.init), prob.dtype_u(prob.init)
+    u0[:], rhs[:] = (y0, z0), (y0, z0)
 
     dt = 0.01
-    y, z = prob.solve_system(factor=dt, y0=y0, z0=z0, t=t0, rhs_diff=y0, rhs_alg=z0)
+    u = prob.solve_system(factor=dt, u0=u0, t=t0, rhs=rhs)
+    y, z = u
 
-    y1, z1 = prob.y_exact(t=t0 + dt), prob.z_exact(t=t0 + dt)
+    u1 = prob.u_exact(t=t0 + dt)
+    y1, z1 = u1
 
-    assert abs(y - y1) < 7.5e-4
-    assert abs(z - z1) < 1.5e-3
-
-
-@pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
-def test_z_exact_returns_correct_solution(t):
-    problem = LinearManufacturedDAE()
-
-    assert problem.z_exact(t) == -2 * np.exp(-4 * t), (
-        "Computed solution does not match with expected solution!"
-    )
+    np.testing.assert_allclose(y, y1, atol=7.5e-4, rtol=0)
+    np.testing.assert_allclose(z, z1, atol=1.5e-3, rtol=0)
 
 
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
 def test_exact_solution_is_consistent_with_dae(t):
     problem = LinearManufacturedDAE()
 
-    y, z = problem.y_exact(t), problem.z_exact(t)
+    u = problem.u_exact(t)
 
     y_dot = -4 * np.exp(-4 * t)
 
     # Consistency checked for y_dot; consistency for g is already checked above
-    assert y_dot == problem.f(y, z, t), "y_dot does not match with the rhs f!"
+    np.testing.assert_allclose(y_dot, problem.f(u, t))
