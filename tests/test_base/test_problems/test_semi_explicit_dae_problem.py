@@ -10,35 +10,32 @@ class IncompleteSemiexplicitDAE(SemiexplicitDAEProblem):
 class DummySemiexplicitDAE(SemiexplicitDAEProblem):
     """Dummy DAE problem with implementations of f and g."""
 
-    def f(self, y, z, t):
-        return -y + z
+    def f(self, u, t):
+        return -u.diff[:] + u.alg[:]
 
-    def g(self, y, z, t):
-        return y + z - 1
+    def g(self, u, t):
+        return u.diff[:] + u.alg[:] - 1
 
 
 class DummySemiexplicitDAEWithExactSolution(DummySemiexplicitDAE):
     """Dummy DAE problem with an exact solution."""
 
-    def y_exact(self, t):
+    def u_exact(self, t):
         return 1.0
-
-    def z_exact(self, t):
-        return 2.0
 
 
 class DummyMissingF(SemiexplicitDAEProblem):
     """Dummy DAE problem without implementation of f."""
 
-    def g(self, y, z, t):
-        return y + z - 1
+    def g(self, u, t):
+        return u.diff[:] + u.alg[:] - 1
 
 
 class DummyMissingG(SemiexplicitDAEProblem):
     """Dummy DAE problem without implementation of g."""
 
-    def f(self, y, z, t):
-        return -y + z
+    def f(self, u, t):
+        return -u.diff[:] + u.alg[:]
 
 
 def test_attribute_init_should_be_tuple_of_dtype_and_nvars(
@@ -91,18 +88,18 @@ def test_abstract_f_raises_not_implemented_error_when_called(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
     with pytest.raises(
-        NotImplementedError, match=r"Subclasses must implement f\(y, z, t\)\."
+        NotImplementedError, match=r"Subclasses must implement f\(u, t\)\."
     ):
-        super(DummySemiexplicitDAE, problem).f(None, None, 0.0)
+        super(DummySemiexplicitDAE, problem).f(None, 0.0)
 
 
 def test_abstract_g_raises_not_implemented_error_when_called(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
     with pytest.raises(
-        NotImplementedError, match=r"Subclasses must implement g\(y, z, t\)\."
+        NotImplementedError, match=r"Subclasses must implement g\(u, t\)\."
     ):
-        super(DummySemiexplicitDAE, problem).g(None, None, 0.0)
+        super(DummySemiexplicitDAE, problem).g(None, 0.0)
 
 
 def test_instantiation_is_successful(nvars=(1,)):
@@ -126,30 +123,27 @@ def test_raises_type_error_without_g(nvars=(1,)):
 def test_raises_not_implemented_error_if_methods_not_implemented(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
+    u0 = problem.dtype_u(problem.init)
+    u0[:] = (1.5, 2.0)
+
+    rhs = problem.dtype_u(problem.init)
+    rhs[:] = (0.25, 0.2)
+
     with pytest.raises(
         NotImplementedError, match=r"Subclasses must implement solve_system\(\)."
     ):
-        problem.solve_system(1.0, 1.5, 2.0, 0.5, 0.25, 0.2)
+        problem.solve_system(1.0, u0, 0.5, rhs)
 
     with pytest.raises(
         NotImplementedError,
-        match="This problem does not provide an exact solution for y.",
+        match="This problem does not provide an exact solution for u.",
     ):
-        problem.y_exact(0.0)
-
-    with pytest.raises(
-        NotImplementedError,
-        match="This problem does not provide an exact solution for z.",
-    ):
-        problem.z_exact(0.0)
+        problem.u_exact(0.0)
 
 
-def test_y_z_exact_can_be_overridden_in_subclass(nvars=(1,)):
+def test_u_exact_can_be_overridden_in_subclass(nvars=(1,)):
     problem = DummySemiexplicitDAEWithExactSolution(nvars_diff=nvars, nvars_alg=nvars)
 
-    assert problem.y_exact(0.0) == 1.0, (
-        "y_exact was not successfully overriden in subclass!"
-    )
-    assert problem.z_exact(0.0) == 2.0, (
-        "z_exact was not successfully overriden in subclass!"
+    assert problem.u_exact(0.0) == 1.0, (
+        "u_exact was not successfully overriden in subclass!"
     )
