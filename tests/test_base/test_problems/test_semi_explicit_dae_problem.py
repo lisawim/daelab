@@ -4,16 +4,16 @@ from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProble
 
 
 class IncompleteSemiexplicitDAE(SemiexplicitDAEProblem):
-    """Dummy DAE problem without implementations of f and g."""
+    """Dummy DAE problem without implementations of f_diff and f_alg."""
 
 
 class DummySemiexplicitDAE(SemiexplicitDAEProblem):
-    """Dummy DAE problem with implementations of f and g."""
+    """Dummy DAE problem with implementations of f_diff and f_alg."""
 
-    def f(self, u, t):
+    def f_diff(self, u, t):
         return -u.diff[:] + u.alg[:]
 
-    def g(self, u, t):
+    def f_alg(self, u, t):
         return u.diff[:] + u.alg[:] - 1
 
 
@@ -24,17 +24,17 @@ class DummySemiexplicitDAEWithExactSolution(DummySemiexplicitDAE):
         return 1.0
 
 
-class DummyMissingF(SemiexplicitDAEProblem):
-    """Dummy DAE problem without implementation of f."""
+class DummyMissingFDiff(SemiexplicitDAEProblem):
+    """Dummy DAE problem without implementation of f_diff."""
 
-    def g(self, u, t):
+    def f_alg(self, u, t):
         return u.diff[:] + u.alg[:] - 1
 
 
-class DummyMissingG(SemiexplicitDAEProblem):
-    """Dummy DAE problem without implementation of g."""
+class DummyMissingFAlg(SemiexplicitDAEProblem):
+    """Dummy DAE problem without implementation of f_alg."""
 
-    def f(self, u, t):
+    def f_diff(self, u, t):
         return -u.diff[:] + u.alg[:]
 
 
@@ -79,27 +79,27 @@ def test_should_raise_value_error_if_diff_alg_vars_have_different_spatial_dimens
         DummySemiexplicitDAE(nvars_diff=nvars_diff, nvars_alg=nvars_alg)
 
 
-def test_raises_type_error_without_f_and_g(nvars=(1,)):
+def test_raises_type_error_without_f_diff_and_f_alg(nvars=(1,)):
     with pytest.raises(TypeError):
         IncompleteSemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
 
-def test_abstract_f_raises_not_implemented_error_when_called(nvars=(1,)):
+def test_abstract_f_diff_raises_not_implemented_error_when_called(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
     with pytest.raises(
-        NotImplementedError, match=r"Subclasses must implement f\(u, t\)\."
+        NotImplementedError, match=r"Subclasses must implement f_diff\(u, t\)\."
     ):
-        super(DummySemiexplicitDAE, problem).f(None, 0.0)
+        super(DummySemiexplicitDAE, problem).f_diff(None, 0.0)
 
 
-def test_abstract_g_raises_not_implemented_error_when_called(nvars=(1,)):
+def test_abstract_f_alg_raises_not_implemented_error_when_called(nvars=(1,)):
     problem = DummySemiexplicitDAE(nvars_diff=nvars, nvars_alg=nvars)
 
     with pytest.raises(
-        NotImplementedError, match=r"Subclasses must implement g\(u, t\)\."
+        NotImplementedError, match=r"Subclasses must implement f_alg\(u, t\)\."
     ):
-        super(DummySemiexplicitDAE, problem).g(None, 0.0)
+        super(DummySemiexplicitDAE, problem).f_alg(None, 0.0)
 
 
 def test_instantiation_is_successful(nvars=(1,)):
@@ -110,14 +110,14 @@ def test_instantiation_is_successful(nvars=(1,)):
     )
 
 
-def test_raises_type_error_without_f(nvars=(1,)):
+def test_raises_type_error_without_f_diff(nvars=(1,)):
     with pytest.raises(TypeError):
-        DummyMissingF(nvars_diff=nvars, nvars_alg=nvars)
+        DummyMissingFDiff(nvars_diff=nvars, nvars_alg=nvars)
 
 
-def test_raises_type_error_without_g(nvars=(1,)):
+def test_raises_type_error_without_f_alg(nvars=(1,)):
     with pytest.raises(TypeError):
-        DummyMissingG(nvars_diff=nvars, nvars_alg=nvars)
+        DummyMissingFAlg(nvars_diff=nvars, nvars_alg=nvars)
 
 
 def test_raises_not_implemented_error_if_methods_not_implemented(nvars=(1,)):
