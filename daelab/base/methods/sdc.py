@@ -140,17 +140,17 @@ class SDCMethod(Method):
 
     def init_node_values(self, t, dt):
         """Initializes the values at internal nodes."""
-        raise NotImplementedError("Subclasses must implement init_node_values().")
 
         prob = self.problem
 
         tau = [t + dt * node for node in self.nodes]
 
+        self.f[0] = prob.f(self.u[0], t)
+
         # Initialization of provisional solution by spreading it to each node
         for m in range(1, self.num_nodes + 1):
             self.u[m] = self.u[0]
-            self.f[m].diff = prob.f(self.u[0].diff, self.u[0].alg, tau[m - 1])
-            self.f[m].alg = prob.g(self.u[0].diff, self.u[0].alg, tau[m - 1])
+            self.f[m] = prob.f(self.u[0], tau[m - 1])
 
     def compute_defect(self):
         """Computes the defect term using `Q-Q_delta`."""
