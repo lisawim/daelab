@@ -75,9 +75,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
             Evaluated right-hand side of differential equation
             at current time.
         """
-        f = self.dtype_f(self.init)
-        f.diff[:] = -2 * u.diff[:] + u.alg[:]
-        return f.diff
+        return -2 * u.diff + u.alg
 
     def f_alg(self, u, t):
         """
@@ -96,9 +94,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
             Evaluated right-hand side of algebraic equation
             at current time.
         """
-        f = self.dtype_f(self.init)
-        f.alg[:] = -2 * u.diff[:] - u.alg[:]
-        return f.alg
+        return -2 * u.diff - u.alg
 
     def solve_system(self, factor, u0, t, rhs):
         """

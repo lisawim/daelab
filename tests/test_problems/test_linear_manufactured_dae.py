@@ -97,3 +97,18 @@ def test_exact_solution_is_consistent_with_dae(t):
 
     # Consistency checked for y_dot; consistency for g is already checked above
     np.testing.assert_allclose(y_dot, problem.f_diff(u, t))
+
+
+@pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
+def test_f_returns_f_diff_and_f_alg(t):
+    problem = LinearManufacturedDAE()
+
+    u = problem.u_exact(t)
+    f = problem.f(u, t)
+    f_diff = problem.f_diff(u, t)
+    f_alg = problem.f_alg(u, t)
+
+    np.testing.assert_allclose(f.diff, f_diff)
+    np.testing.assert_allclose(f.alg, f_alg)
+    assert f.diff.shape == f_diff.shape == problem.init[0]
+    assert f.alg.shape == f_alg.shape == problem.init[1]

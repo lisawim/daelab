@@ -153,6 +153,28 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         """
         raise NotImplementedError("Subclasses must implement f_alg(u, t).")
 
+    def f(self, u, t):
+        """
+        Evaluate the complete right-hand side of the problem, i.e., `f(u, t)`
+        and `g(u, t)`.
+
+        Parameters
+        ----------
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variables.
+        t : float
+            Current time of numerical solution.
+
+        Returns
+        -------
+        SemiexplicitArray
+            Evaluated right-hand side of differential and algebraic equations
+            at current time.
+        """
+        f = self.dtype_f(self.init)
+        f[:] = (self.f_diff(u, t), self.f_alg(u, t))
+        return f
+
     def solve_system(self, factor, u0, t, rhs):
         """
         Solves the implicit system.
