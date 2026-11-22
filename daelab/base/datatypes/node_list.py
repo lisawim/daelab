@@ -1,7 +1,6 @@
 import numpy as np
 
 from daelab.base.datatypes.arithmetic import ArithmeticMethods
-from daelab.base.datatypes.array import _assign
 
 
 def _shapes(init):
@@ -115,9 +114,9 @@ class NodeList(ArithmeticMethods):
         """
         if isinstance(m, slice):
             for node in self._nodes[m]:
-                _assign(node, val)
+                node[...] = val
         else:
-            _assign(self._nodes[m], val)
+            self._nodes[m][...] = val
 
     def flat_node(self, m):
         """

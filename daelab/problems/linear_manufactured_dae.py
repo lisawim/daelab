@@ -58,49 +58,45 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
             name=name,
         )
 
-    def f(self, y, z, t):
+    def f_diff(self, u, t):
         """
-        Evaluate the differential equation `f(y, z, t)`.
+        Evaluate the differential equation `f(u, t)`.
 
         Parameters
         ----------
-        y : float
-            Numerical solution of differential variable.
-        z : float
-            Numerical solution of algebraic variable.
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variable.
         t : float
             Current time of numerical solution.
 
         Returns
         -------
-        float
+        Array
             Evaluated right-hand side of differential equation
             at current time.
         """
-        return -2 * y + z
+        return -2 * u.diff + u.alg
 
-    def g(self, y, z, t):
+    def f_alg(self, u, t):
         """
-        Evaluate the algebraic equation `g(y, z, t)`.
+        Evaluate the algebraic equation `g(u, t)`.
 
         Parameters
         ----------
-        y : float
-            Numerical solution of differential variable.
-        z : float
-            Numerical solution of algebraic variable.
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variable.
         t : float
             Current time of numerical solution.
 
         Returns
         -------
-        float
+        Array
             Evaluated right-hand side of algebraic equation
             at current time.
         """
-        return -2 * y - z
+        return -2 * u.diff - u.alg
 
-    def solve_system(self, factor, y0, z0, t, rhs_diff, rhs_alg):
+    def solve_system(self, factor, u0, t, rhs):
         """
         Solves the linear implicit system by a direct solve.
 
@@ -108,27 +104,19 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         ----------
         factor : float
             Local stepsize or any other factor required for quadrature.
-        y0 : float
-            Initial guess for `y`.
-        z0 : float
-            Initial guess for `z`.
+        u0 : SemiexplicitArray
+            Initial guess for `u`.
         t : float
             Current time.
-        rhs_diff : float
-            Right-hand side for the linear system corresponding to the
-            differential equation.
-        rhs_alg : float
-            Right-hand side for the linear system corresponding to the
-            algebraic equation.
+        rhs : SemiexplicitArray
+            Right-hand side for the linear implicit system.
 
         Returns
         -------
-        float
-            Solution `y` of the linear system.
-        float
-            Solution `z` of the linear system.
+        SemiexplicitArray
+            Solution `u` of the linear system.
         """
-        b = np.array([rhs_diff, 0.0])
+        b = np.r_[rhs.diff[:], 0.0]
         C = np.array(
             [
                 [1 + factor * 2.0, -factor * 1.0],
@@ -137,9 +125,12 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         )
 
         u = np.linalg.solve(C, b)
-        return u[0], u[1]
 
-    def y_exact(self, t):
+        solution = self.dtype_u(self.init)
+        solution[:] = (u[0], u[1])
+        return solution
+
+    def u_exact(self, t):
         """
         Computes the exact solution of `y` at time `t`.
 
@@ -153,20 +144,6 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         float
             Exact solution of `y` at time `t`.
         """
-        return np.exp(-4 * t)
-
-    def z_exact(self, t):
-        """
-        Computes the exact solution of `z` at time `t`.
-
-        Parameters
-        ----------
-        t : float
-            Time of the exact solution.
-
-        Returns
-        -------
-        float
-            Exact solution of `z` at time `t`.
-        """
-        return -2 * np.exp(-4 * t)
+        u = self.dtype_u(self.init)
+        u[:] = (np.exp(-4 * t), -2 * np.exp(-4 * t))
+        return u

@@ -48,6 +48,11 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
     is_semiexplicit_dae : bool
        Indicates whether the problem is of semi-explicit form. Set to `True`.
 
+    Notes
+    -----
+    The corresponding methods for the right-hand sides :math:`f` and :math:`g`
+    are ``f_diff`` and ``f_alg``.
+
     Raises
     ------
     TypeError
@@ -99,16 +104,14 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         self.nvars_alg = nvars_alg
 
     @abstractmethod
-    def f(self, y, z, t):
+    def f_diff(self, u, t):
         """
-        Evaluate the differential equation `f(y, z, t)`.
+        Evaluate the differential equation `f(u, t)`.
 
         Parameters
         ----------
-        y : Array
-            Numerical solution of differential variables.
-        z : Array
-            Numerical solution of algebraic variables.
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variables.
         t : float
             Current time of numerical solution.
 
@@ -123,19 +126,17 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         NotImplementedError
             If the subclasses did not implemented the method.
         """
-        raise NotImplementedError("Subclasses must implement f(y, z, t).")
+        raise NotImplementedError("Subclasses must implement f_diff(u, t).")
 
     @abstractmethod
-    def g(self, y, z, t):
+    def f_alg(self, u, t):
         """
-        Evaluate the algebraic equation `g(y, z, t)`.
+        Evaluate the algebraic equation `g(u, t)`.
 
         Parameters
         ----------
-        y : Array
-            Numerical solution of differential variables.
-        z : Array
-            Numerical solution of algebraic variables.
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variables.
         t : float
             Current time of numerical solution.
 
@@ -150,9 +151,31 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         NotImplementedError
            If the subclasses did not implemented the method.
         """
-        raise NotImplementedError("Subclasses must implement g(y, z, t).")
+        raise NotImplementedError("Subclasses must implement f_alg(u, t).")
 
-    def solve_system(self, factor, y0, z0, t, rhs_diff, rhs_alg):
+    def f(self, u, t):
+        """
+        Evaluate the complete right-hand side of the problem, i.e., `f(u, t)`
+        and `g(u, t)`.
+
+        Parameters
+        ----------
+        u : SemiexplicitArray
+            Numerical solution of differential and algebraic variables.
+        t : float
+            Current time of numerical solution.
+
+        Returns
+        -------
+        SemiexplicitArray
+            Evaluated right-hand side of differential and algebraic equations
+            at current time.
+        """
+        f = self.dtype_f(self.init)
+        f[:] = (self.f_diff(u, t), self.f_alg(u, t))
+        return f
+
+    def solve_system(self, factor, u0, t, rhs):
         """
         Solves the implicit system.
 
@@ -160,25 +183,17 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         ----------
         factor : float
             Local stepsize or any other factor required for quadrature.
-        y0 : Array
-            Initial guess for `y`.
-        z0 : Array
-            Initial guess for `z`.
+        u0 : SemiexplicitArray
+            Initial guess for `u`.
         t : float
             Current time.
-        rhs_diff : Array
-            Right-hand side for the linear system corresponding to the
-            differential equation.
-        rhs_alg : Array
-            Right-hand side for the linear system corresponding to the
-            algebraic equation.
+        rhs : SemiexplicitArray
+            Right-hand side for the implicit system.
 
         Returns
         -------
-        Array
-            Solution `y` of the system.
-        Array
-            Solution `z` of the system.
+        SemiexplicitArray
+            Solution `u` of the system.
 
         Raises
         ------
@@ -187,9 +202,9 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         """
         raise NotImplementedError("Subclasses must implement solve_system().")
 
-    def y_exact(self, t):
+    def u_exact(self, t):
         """
-        Computes the exact solution of `y` at time `t`.
+        Computes the exact solution of `y` and `z` at time `t`.
 
         Parameters
         ----------
@@ -198,8 +213,8 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Returns
         -------
-        Array
-            Exact solution of `y` at time `t`.
+        SemiexplicitArray
+            Exact solution of `y` and `z` at time `t`.
 
         Raises
         ------
@@ -207,28 +222,5 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
             If the subclasses did not implemented the method.
         """
         raise NotImplementedError(
-            "This problem does not provide an exact solution for y."
-        )
-
-    def z_exact(self, t):
-        """
-        Computes the exact solution of `z` at time `t`.
-
-        Parameters
-        ----------
-        t : float
-            Time of the exact solution.
-
-        Returns
-        -------
-        Array
-            Exact solution of `z` at time `t`.
-
-        Raises
-        ------
-        NotImplementedError
-            If the subclasses did not implemented the method.
-        """
-        raise NotImplementedError(
-            "This problem does not provide an exact solution for z."
+            "This problem does not provide an exact solution for u."
         )
