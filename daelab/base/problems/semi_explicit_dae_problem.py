@@ -155,7 +155,8 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
     def f(self, u, t):
         """
-        Evaluate the algebraic equation `g(u, t)`.
+        Evaluate the complete right-hand side of the problem, i.e., `f(u, t)`
+        and `g(u, t)`.
 
         Parameters
         ----------
@@ -166,14 +167,9 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         Returns
         -------
-        Array
-            Evaluated right-hand side of algebraic equation
+        SemiexplicitArray
+            Evaluated right-hand side of differential and algebraic equations
             at current time.
-
-        Raises
-        ------
-        NotImplementedError
-            If the subclasses did not implemented the method.
         """
         f = self.dtype_f(self.init)
         f[:] = (self.f_diff(u, t), self.f_alg(u, t))
