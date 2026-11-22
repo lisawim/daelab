@@ -58,7 +58,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
             name=name,
         )
 
-    def f(self, u, t):
+    def f_diff(self, u, t):
         """
         Evaluate the differential equation `f(u, t)`.
 
@@ -79,7 +79,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         f.diff[:] = -2 * u.diff[:] + u.alg[:]
         return f.diff
 
-    def g(self, u, t):
+    def f_alg(self, u, t):
         """
         Evaluate the algebraic equation `g(u, t)`.
 
@@ -120,7 +120,6 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         SemiexplicitArray
             Solution `u` of the linear system.
         """
-        print(rhs.diff[:], rhs.alg[:], rhs.diff[:].shape)
         b = np.r_[rhs.diff[:], 0.0]
         C = np.array(
             [
