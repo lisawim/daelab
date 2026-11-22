@@ -28,7 +28,9 @@ class ConstrainedSDC(SDCMethod):
         defect = NodeList(prob.dtype_u, prob.init, self.num_nodes - 1)
         for m in range(self.num_nodes):
             for j in range(self.num_nodes):
-                defect[m].diff[:] += dt * (self.Q[m, j] - self.QI[m, j]) * self.f[j + 1].diff[:]
+                defect[m].diff[:] += (
+                    dt * (self.Q[m, j] - self.QI[m, j]) * self.f[j + 1].diff[:]
+                )
 
         return defect
 
