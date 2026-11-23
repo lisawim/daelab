@@ -3,7 +3,6 @@ import pytest
 
 from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProblem
 from daelab.base.datatypes.node_list import NodeList
-from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
 from tests.test_base.test_problems.test_full_implicit_dae_problem import (
     DummyImplicitDAE,
 )
@@ -45,18 +44,21 @@ class DummyDAE(SemiexplicitDAEProblem):
     def f_diff(self, u, t):
         """Evaluate the differential equation `f(u, t)`."""
         f1 = (
-            (self.a - 1 / (2 - t)) * u.diff[0] + (2 - t) * self.a * u.alg[0] + (3 - t) / (2 - t)
+            (self.a - 1 / (2 - t)) * u.diff[0]
+            + (2 - t) * self.a * u.alg[0]
+            + (3 - t) / (2 - t)
         )
         f2 = (
-            (1 - self.a) / (t - 2) * u.diff[0] - u.diff[1] + (self.a - 1) * u.alg[0] + 2 * np.exp(t)
+            (1 - self.a) / (t - 2) * u.diff[0]
+            - u.diff[1]
+            + (self.a - 1) * u.alg[0]
+            + 2 * np.exp(t)
         )
         return (f1, f2)
 
     def f_alg(self, u, t):
         """Evaluate the algebraic equation `g(u, t)`."""
-        g = (
-            (t + 2) * u.diff[0] + (t ** 2 - 4) * u.diff[1] - (t ** 2 + t - 2) * np.exp(t)
-        )
+        g = (t + 2) * u.diff[0] + (t**2 - 4) * u.diff[1] - (t**2 + t - 2) * np.exp(t)
         return g
 
     def u_exact(self, t):
@@ -203,7 +205,7 @@ def test_method_initializes_first_node_with_initial_condition(t):
 def test_init_node_values_spreads_initial_condition_to_all_entries_in_node_lists(t):
     problem = DummyDAE()
     sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
-    
+
     sdc.setup(problem=problem)
 
     u0 = problem.u_exact(t)
