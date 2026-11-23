@@ -7,12 +7,14 @@ from daelab.methods.sdc_methods.constrained_sdc import ConstrainedSDC
 from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
 
 
-@pytest.fixture
-def problem_and_initialized_method(t=0.0, dt=0.5):
+@pytest.mark.parametrize("QI_type", ["IE", "EE"])
+def test_compute_defect_correctly_computes_defect(QI_type, t=0.0, dt=0.5):
     problem = LinearManufacturedDAE()
 
     num_nodes = 3
-    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc_c = ConstrainedSDC(
+        num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type=QI_type
+    )
 
     sdc_c.setup(problem=problem)
 
@@ -25,14 +27,6 @@ def problem_and_initialized_method(t=0.0, dt=0.5):
     for m in range(1, sdc_c.num_nodes + 1):
         sdc_c.u[m] = problem.u_exact(tau[m - 1])
         sdc_c.f[m] = problem.f(sdc_c.u[m], tau[m - 1])
-
-    return problem, sdc_c
-
-
-def test_compute_defect_correctly_computes_defect(
-    problem_and_initialized_method, t=0.0, dt=0.5
-):
-    problem, sdc_c = problem_and_initialized_method
 
     Q, QI = sdc_c.Q, sdc_c.QI
 
@@ -85,10 +79,23 @@ def test_update_node_values_correctly_updates_values_at_nodes(
     assert np.allclose(u[-1].alg[:], u_ex.alg[:], rtol=0.0, atol=3e-13)
 
 
-def test_compute_residual_computes_residual_correctly(
-    problem_and_initialized_method, t=0.0, dt=0.5
-):
-    problem, sdc_c = problem_and_initialized_method
+def test_compute_residual_computes_residual_correctly(t=0.0, dt=0.5):
+    problem = LinearManufacturedDAE()
+
+    num_nodes = 3
+    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
+
+    sdc_c.setup(problem=problem)
+
+    tau = [t + dt * node for node in sdc_c.nodes]
+
+    sdc_c.u[0] = problem.u_exact(t)
+    sdc_c.f[0] = problem.f(sdc_c.u[0], t)
+
+    # Initialization of provisional solution by spreading it to each node
+    for m in range(1, sdc_c.num_nodes + 1):
+        sdc_c.u[m] = problem.u_exact(tau[m - 1])
+        sdc_c.f[m] = problem.f(sdc_c.u[m], tau[m - 1])
 
     residual = sdc_c.compute_residual(dt)
 
