@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
 
+from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProblem
 from daelab.base.datatypes.node_list import NodeList
+from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
 from tests.test_base.test_problems.test_full_implicit_dae_problem import (
     DummyImplicitDAE,
 )
@@ -16,6 +18,53 @@ class DummyQDeltaGenerator:
 
     def getQDelta(self):
         return np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 4.0], [0.0, 0.0, 0.0]])
+
+
+class DummyDAE(SemiexplicitDAEProblem):
+    def __init__(
+        self,
+        nvars_diff=(2,),
+        nvars_alg=(1,),
+        dtype=float,
+        diff_index=2,
+        t_span=(0.0, 1.0),
+        name="Dummy DAE",
+    ):
+        """Initialization routine."""
+        super().__init__(
+            nvars_diff=nvars_diff,
+            nvars_alg=nvars_alg,
+            dtype=dtype,
+            diff_index=diff_index,
+            t_span=t_span,
+            name=name,
+        )
+
+        self.a = 10
+
+    def f_diff(self, u, t):
+        """Evaluate the differential equation `f(u, t)`."""
+        f1 = (
+            (self.a - 1 / (2 - t)) * u.diff[0] + (2 - t) * self.a * u.alg[0] + (3 - t) / (2 - t)
+        )
+        f2 = (
+            (1 - self.a) / (t - 2) * u.diff[0] - u.diff[1] + (self.a - 1) * u.alg[0] + 2 * np.exp(t)
+        )
+        return (f1, f2)
+
+    def f_alg(self, u, t):
+        """Evaluate the algebraic equation `g(u, t)`."""
+        g = (
+            (t + 2) * u.diff[0] + (t ** 2 - 4) * u.diff[1] - (t ** 2 + t - 2) * np.exp(t)
+        )
+        return g
+
+    def u_exact(self, t):
+        """Computes the exact solution of `u` at time `t`."""
+        u = self.dtype_u(self.init)
+        u.diff[:] = (np.exp(t), np.exp(t))
+        u.alg[:] = -np.exp(t) / (2 - t)
+        return u
 
 
 def test_attributes_are_initialized_correctly():
@@ -136,11 +185,44 @@ def test_get_QDelta_explicit_returns_lower_triangular_matrix():
     assert QE.shape == (num_nodes, num_nodes)
 
 
-def test_init_node_values_should_raise_not_implemented_error():
+@pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
+def test_method_initializes_first_node_with_initial_condition(t):
+    problem = DummyDAE()
     sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
-    err_msg_match = r"Subclasses must implement init_node_values\(\)."
-    with pytest.raises(NotImplementedError, match=err_msg_match):
-        sdc.init_node_values()
+
+    sdc.setup(problem=problem)
+
+    u0 = problem.u_exact(t)
+    sdc.u[0] = u0
+
+    np.testing.assert_allclose(sdc.u[0].diff, u0.diff)
+    np.testing.assert_allclose(sdc.u[0].alg, u0.alg)
+
+
+@pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
+def test_init_node_values_spreads_initial_condition_to_all_entries_in_node_lists(t):
+    problem = DummyDAE()
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    
+    sdc.setup(problem=problem)
+
+    u0 = problem.u_exact(t)
+    sdc.u[0] = u0
+
+    dt = 0.2
+    tau = [t + dt * node for node in sdc.nodes]
+
+    sdc.init_node_values(t, dt)
+
+    assert np.allclose(sdc.f[0].diff, problem.f(u0, t).diff)
+    for m in range(sdc.num_nodes):
+        u_diff, u_alg = sdc.u[m + 1]
+        f_diff, f_alg = sdc.f[m + 1]
+
+        assert np.allclose(u_diff, u0.diff)
+        assert np.allclose(u_alg, u0.alg)
+        assert np.allclose(f_diff, problem.f(sdc.u[m + 1], tau[m]).diff)
+        assert np.allclose(f_alg, problem.f(sdc.u[m + 1], tau[m]).alg)
 
 
 def test_compute_defect_should_raise_not_implemented_error():
