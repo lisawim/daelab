@@ -3,8 +3,20 @@ import pytest
 
 from daelab.base.datatypes.node_list import NodeList
 from daelab.base.datatypes.semiexplicit import SemiexplicitArray
+from daelab.base.methods.sdc import SDCMethod
 from daelab.methods.sdc_methods.constrained_sdc import ConstrainedSDC
 from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
+
+
+def test_init_passes_parameters_to_method():
+    kwargs = dict(num_nodes=4, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc_c, sdc = ConstrainedSDC(**kwargs), SDCMethod(**kwargs)
+
+    assert isinstance(sdc_c, SDCMethod)
+    assert sdc_c.num_nodes == 4
+    assert np.array_equal(sdc_c.nodes, sdc.nodes)
+    assert np.array_equal(sdc_c.Q, sdc.Q)
+    assert np.array_equal(sdc_c.QI, sdc.QI)
 
 
 @pytest.mark.parametrize("QI_type", ["IE", "EE"])
