@@ -51,7 +51,7 @@ def test_bind_should_return_independent_copies():
 
 
 def test_method_should_create_independent_node_lists_for_different_problems():
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
     prob_a = LinearManufacturedDAE()
     prob_b = DummySemiexplicitDAE(nvars_diff=(1,), nvars_alg=(1,))
 

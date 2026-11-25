@@ -15,10 +15,9 @@ class SDCMethod(Method):
     The method is the base class to design different SDC methods. For passed
     parameters ``num_nodes``, ``quad_type``, and ``node_type`` it generates
     the weights, nodes, and coefficient of spectral integration matrix ``Q``
-    (representing the coefficients of a collocation method). While ``QI_type``
-    indicates the choice of the ``Q_delta`` matrix and refers to a certain
-    implicit SDC method, ``QE_type`` instead refers to a certain explicit
-    SDC scheme.
+    (representing the coefficients of a collocation method). The ``QD_type``
+    indicates the choice of the ``QDelta`` matrix and refers to a certain
+    SDC method.
 
     Parameters
     ----------
@@ -26,23 +25,11 @@ class SDCMethod(Method):
         Number of collocation nodes.
     quad_type : str
         Quadrature type.
-    QI_type : str
-        Type of the method. The type refers to the choice of the ``Q_delta``
-        matrix leading to an implicit scheme.
-    QE_type : str, optional
-        Type of the method. The type refers to the choice of the ``Q_delta``
-        matrix leading to an explicit scheme. Default is None.
+    QD_type : str
+        Type of the method. The type refers to the choice of the ``QDelta``
+        matrix leading to an SDC scheme.
     node_type : str
         Type of nodes. Default is ``"LEGENDRE".``
-
-    Notes
-    -----
-    - Noth, ``QI_type`` and ``QE_type`` can be set to treat the right-hand side
-      in an IMEX fashion. If only one of them is set, make sure that the
-      computation also use the corresponding ``Q_delta`` in an efficient way.
-      For example, choosing ``QI_type`` that refers to an explicit scheme
-      unnecessarily solves an implicit system with zero diagonal entry and can
-      be avoided by, e.g. setting ``QE_type`` instead.
 
     Attributes
     ----------
@@ -50,10 +37,8 @@ class SDCMethod(Method):
         Number of collocation nodes.
     quad_type : str
         Quadrature type.
-    QI_type : str
-        Type of the implicit SDC method.
-    QE_type : str
-        Type of the explicit SDC method.
+    QD_type : str
+        Type of the SDC method.
     node_type : str
         Type of nodes.
     """
@@ -62,8 +47,7 @@ class SDCMethod(Method):
         self,
         num_nodes: int,
         quad_type: str,
-        QI_type: str,
-        QE_type: str = None,
+        QD_type: str,
         node_type: str = "LEGENDRE",
     ):
         if num_nodes < 2:
@@ -71,18 +55,12 @@ class SDCMethod(Method):
 
         self.num_nodes = num_nodes
         self.quad_type = quad_type
-        self.QI_type = QI_type
-        self.QE_type = QE_type
+        self.QD_type = QD_type
         self.node_type = node_type
 
         self.nodes, self.weights, self.Q = self._generate_coefficients()
 
-        self.QI = self.get_QDelta_implicit(QI_type=self.QI_type)
-        self.QE = (
-            self.get_QDelta_explicit(QE_type=self.QE_type)
-            if self.QE_type is not None
-            else None
-        )
+        self.QD = self.get_QDelta(QD_type=self.QD_type)
 
         self.u = None
         self.f = None
@@ -116,27 +94,14 @@ class SDCMethod(Method):
         nodes, weights, Q = coll.genCoeffs()
         return nodes, weights, Q
 
-    def get_QDelta_implicit(self, QI_type):
-        QDelta_impl = QDELTA_GENERATORS[QI_type](nodes=self.nodes).getQDelta()
+    def get_QDelta(self, QD_type):
+        QDelta = QDELTA_GENERATORS[QD_type](nodes=self.nodes).getQDelta()
 
-        tri_upper = np.triu_indices_from(QDelta_impl, k=1)
-        if np.any(QDelta_impl[tri_upper] != 0):
-            raise ValueError("Implicit QDelta matrix must be of lower-triangular form!")
+        tri_upper = np.triu_indices_from(QDelta, k=1)
+        if any(QDelta[tri_upper] != 0):
+            raise ValueError("QDelta matrix must be of lower-triangular form!")
 
-        return QDelta_impl
-
-    def get_QDelta_explicit(self, QE_type):
-        QDelta_expl = QDELTA_GENERATORS[QE_type](nodes=self.nodes).getQDelta()
-
-        tri_upper = np.triu_indices_from(QDelta_expl, k=1)
-        if any(QDelta_expl[tri_upper] != 0):
-            raise ValueError("Explicit QDelta matrix must be of lower-triangular form!")
-
-        diag = QDelta_expl.diagonal()
-        if any(diag != 0.0):
-            raise ValueError("Explicit QDelta matrix must have zero diagonal entries.")
-
-        return QDelta_expl
+        return QDelta
 
     def init_node_values(self, t, dt):
         """Initializes the values at internal nodes."""
