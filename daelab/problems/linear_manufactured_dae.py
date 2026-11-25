@@ -14,7 +14,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         0 = -2 y(t) - z(t),
 
     for :math:`t \in [0.0, 1.0]` with differential variable :math:`y` and
-    algebraic variable :math:`y`. The exact solution is given by
+    algebraic variable :math:`z`. The exact solution is given by
 
     .. math::
         (y(t), z(t)) = (e^{-4 t}, -2 e^{-4 t}),
