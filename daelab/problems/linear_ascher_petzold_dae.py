@@ -110,7 +110,7 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
         )
         f = Array((self.nvars_diff, self.init[-1]))
         f[:] = (f1, f2)
-        return (f1, f2)
+        return f
 
     def f_alg(self, u, t):
         """

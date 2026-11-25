@@ -31,6 +31,9 @@ def test_attributes_are_initialized_by_default_after_instantiation():
 
 @pytest.mark.parametrize("t", np.random.uniform(0.0, 1.0, size=100))
 def test_f_diff_returns_correct_rhs(t):
+    """
+    Checks if f_diff returns correct rhs, and also checks consistency of values.
+    """
     problem = LinearAscherPetzoldDAE()
 
     u = problem.dtype_u(problem.init)
@@ -43,6 +46,9 @@ def test_f_diff_returns_correct_rhs(t):
 
 @pytest.mark.parametrize("t", np.random.uniform(0.0, 1.0, size=100))
 def test_f_alg_returns_zero(t):
+    """
+    Checks if f_alg is zero, and also checks consistency of values.
+    """
     problem = LinearAscherPetzoldDAE()
 
     u = problem.dtype_u(problem.init)
@@ -73,7 +79,5 @@ def test_f_returns_f_diff_and_f_alg(t):
 
     np.testing.assert_allclose(f.diff, f_diff)
     np.testing.assert_allclose(f.alg, f_alg)
-    assert f.diff.shape == problem.init[0]
-    assert f.alg.shape == problem.init[1]
-    # assert f.diff.shape == f_diff.shape == problem.init[0]
-    # assert f.alg.shape == f_alg.shape == problem.init[1]
+    assert f.diff.shape == f_diff.shape == problem.init[0]
+    assert f.alg.shape == f_alg.shape == problem.init[1]
