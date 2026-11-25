@@ -29,8 +29,8 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
         (x_1(t), x_2(t), z(t)) = (e^t, e^t, -\frac{e^t}{2 - t}),
 
     so initial conditions are obtained by
-    :math:`(x_1(0), x_2(0), z(0)) = (x_{1,0}, x_{2,0}, z_0)`. The problem is taken
-    from [1]_.
+    :math:`(x_1(0), x_2(0), z(0)) = (x_{1,0}, x_{2,0}, z_0)`. The problem is
+    taken from [1]_.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
     References
     ----------
     .. [1] U. M. Ascher and L. R. Petzold, Computer Methods for Ordinary
-           Differential Equations and Differential-Algebraic Equations, SIAM, 
+           Differential Equations and Differential-Algebraic Equations, SIAM,
            Philadelphia, PA, 1998.
     """
 
