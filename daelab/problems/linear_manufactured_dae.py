@@ -132,7 +132,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
 
     def u_exact(self, t):
         """
-        Computes the exact solution of `y` at time `t`.
+        Computes the exact solution of `u` at time `t`.
 
         Parameters
         ----------
@@ -142,7 +142,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         Returns
         -------
         float
-            Exact solution of `y` at time `t`.
+            Exact solution of `u` at time `t`.
         """
         u = self.dtype_u(self.init)
         u[:] = (np.exp(-4 * t), -2 * np.exp(-4 * t))
