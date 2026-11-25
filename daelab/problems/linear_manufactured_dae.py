@@ -14,7 +14,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         0 = -2 y(t) - z(t),
 
     for :math:`t \in [0.0, 1.0]` with differential variable :math:`y` and
-    algebraic variable :math:`y`. The exact solution is given by
+    algebraic variable :math:`z`. The exact solution is given by
 
     .. math::
         (y(t), z(t)) = (e^{-4 t}, -2 e^{-4 t}),
@@ -132,7 +132,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
 
     def u_exact(self, t):
         """
-        Computes the exact solution of `y` at time `t`.
+        Computes the exact solution of `u` at time `t`.
 
         Parameters
         ----------
@@ -142,7 +142,7 @@ class LinearManufacturedDAE(SemiexplicitDAEProblem):
         Returns
         -------
         float
-            Exact solution of `y` at time `t`.
+            Exact solution of `u` at time `t`.
         """
         u = self.dtype_u(self.init)
         u[:] = (np.exp(-4 * t), -2 * np.exp(-4 * t))
