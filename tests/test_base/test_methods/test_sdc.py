@@ -152,7 +152,7 @@ def test_get_QDelta_returns_lower_triangular_matrix():
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
 def test_method_initializes_first_node_with_initial_condition(t):
     problem = DummyDAE()
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
 
     sdc.setup(problem=problem)
 
@@ -166,7 +166,7 @@ def test_method_initializes_first_node_with_initial_condition(t):
 @pytest.mark.parametrize("t", [0.0, 0.5, 1.0])
 def test_init_node_values_spreads_initial_condition_to_all_entries_in_node_lists(t):
     problem = DummyDAE()
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
 
     sdc.setup(problem=problem)
 

@@ -6,26 +6,27 @@ from daelab.base.datatypes.semiexplicit import SemiexplicitArray
 from daelab.base.methods.sdc import SDCMethod
 from daelab.methods.sdc_methods.constrained_sdc import ConstrainedSDC
 from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
+from tests.test_base.test_methods.test_sdc import DummyDAE
 
 
 def test_init_passes_parameters_to_method():
-    kwargs = dict(num_nodes=4, quad_type="RADAU-RIGHT", QI_type="IE")
+    kwargs = dict(num_nodes=4, quad_type="RADAU-RIGHT", QD_type="IE")
     sdc_c, sdc = ConstrainedSDC(**kwargs), SDCMethod(**kwargs)
 
     assert isinstance(sdc_c, SDCMethod)
     assert sdc_c.num_nodes == 4
     assert np.array_equal(sdc_c.nodes, sdc.nodes)
     assert np.array_equal(sdc_c.Q, sdc.Q)
-    assert np.array_equal(sdc_c.QI, sdc.QI)
+    assert np.array_equal(sdc_c.QD, sdc.QD)
 
 
-@pytest.mark.parametrize("QI_type", ["IE", "EE"])
-def test_compute_defect_correctly_computes_defect(QI_type, t=0.0, dt=0.5):
+@pytest.mark.parametrize("QD_type", ["IE", "EE"])
+def test_compute_defect_correctly_computes_defect(QD_type, t=0.0, dt=0.5):
     problem = LinearManufacturedDAE()
 
     num_nodes = 3
     sdc_c = ConstrainedSDC(
-        num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type=QI_type
+        num_nodes=num_nodes, quad_type="RADAU-RIGHT", QD_type=QD_type
     )
 
     sdc_c.setup(problem=problem)
@@ -40,7 +41,7 @@ def test_compute_defect_correctly_computes_defect(QI_type, t=0.0, dt=0.5):
         sdc_c.u[m] = problem.u_exact(tau[m - 1])
         sdc_c.f[m] = problem.f(sdc_c.u[m], tau[m - 1])
 
-    Q, QI = sdc_c.Q, sdc_c.QI
+    Q, QD = sdc_c.Q, sdc_c.QD
 
     _u, f = sdc_c.u, sdc_c.f
 
@@ -53,9 +54,9 @@ def test_compute_defect_correctly_computes_defect(QI_type, t=0.0, dt=0.5):
 
     for m in range(sdc_c.num_nodes):
         expected = (
-            dt * (Q[m, 0] - QI[m, 0]) * f[1].diff[:]
-            + dt * (Q[m, 1] - QI[m, 1]) * f[2].diff[:]
-            + dt * (Q[m, 2] - QI[m, 2]) * f[3].diff[:]
+            dt * (Q[m, 0] - QD[m, 0]) * f[1].diff[:]
+            + dt * (Q[m, 1] - QD[m, 1]) * f[2].diff[:]
+            + dt * (Q[m, 2] - QD[m, 2]) * f[3].diff[:]
         )
         assert np.allclose(defect[m].diff, expected)
         assert np.allclose(defect[m].alg, 0.0)
@@ -66,7 +67,7 @@ def problem_and_method(t=0.0, dt=0.1):
     problem = LinearManufacturedDAE()
 
     num_nodes = 5
-    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QD_type="IE")
 
     sdc_c.setup(problem=problem)
 
@@ -91,11 +92,11 @@ def test_update_node_values_correctly_updates_values_at_nodes(
     assert np.allclose(u[-1].alg[:], u_ex.alg[:], rtol=0.0, atol=3e-13)
 
 
-def test_compute_residual_computes_residual_correctly(t=0.0, dt=0.5):
-    problem = LinearManufacturedDAE()
+def test_compute_residual_is_max_norm_over_nodes_and_components(t=0.0, dt=0.5):
+    problem = DummyDAE()
 
     num_nodes = 3
-    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc_c = ConstrainedSDC(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QD_type="IE")
 
     sdc_c.setup(problem=problem)
 

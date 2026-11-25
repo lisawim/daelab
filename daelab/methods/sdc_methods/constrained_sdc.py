@@ -7,16 +7,14 @@ class ConstrainedSDC(SDCMethod):
         self,
         num_nodes: int,
         quad_type: str,
-        QI_type: str,
-        QE_type: str = None,
+        QD_type: str,
         node_type: str = "LEGENDRE",
     ):
         """Initialization routine."""
         super().__init__(
             num_nodes=num_nodes,
             quad_type=quad_type,
-            QI_type=QI_type,
-            QE_type=QE_type,
+            QD_type=QD_type,
             node_type=node_type,
         )
 
@@ -29,7 +27,7 @@ class ConstrainedSDC(SDCMethod):
         for m in range(self.num_nodes):
             for j in range(self.num_nodes):
                 defect[m].diff[:] += (
-                    dt * (self.Q[m, j] - self.QI[m, j]) * self.f[j + 1].diff[:]
+                    dt * (self.Q[m, j] - self.QD[m, j]) * self.f[j + 1].diff[:]
                 )
 
         return defect
@@ -48,9 +46,9 @@ class ConstrainedSDC(SDCMethod):
         for m in range(self.num_nodes):
             rhs = defect[m].copy()
             for j in range(m):
-                rhs.diff[:] += dt * self.QI[m, j] * self.f[j + 1].diff[:]
+                rhs.diff[:] += dt * self.QD[m, j] * self.f[j + 1].diff[:]
 
-            q = dt * self.QI[m, m]
+            q = dt * self.QD[m, m]
             if q != 0:
                 self.u[m + 1] = prob.solve_system(q, self.u[m + 1], tau[m], rhs)
             else:
