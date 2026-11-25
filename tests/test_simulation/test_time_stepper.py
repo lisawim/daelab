@@ -16,7 +16,7 @@ class AnotherDummyImplicitDAE(FullimplicitDAEProblem):
 
 
 def test_method_should_independent_node_lists_for_different_problems():
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
 
     a = TimeStepper(
         problem=DummyImplicitDAE(nvars=(3, 64)), method=sdc, maxiter=1, restol=1e-12
@@ -35,7 +35,7 @@ def test_method_should_independent_node_lists_for_different_problems():
 
 
 def test_method_property():
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
     problem = AnotherDummyImplicitDAE(nvars=(3, 64))
 
     stepper = TimeStepper(problem=problem, method=sdc, maxiter=1, restol=1e-12)
@@ -44,7 +44,7 @@ def test_method_property():
 
 
 def test_problem_property():
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
     problem = AnotherDummyImplicitDAE(nvars=(3, 64))
 
     stepper = TimeStepper(problem=problem, method=sdc, maxiter=1, restol=1e-12)
@@ -54,7 +54,7 @@ def test_problem_property():
 
 
 def test_current_time_stepper_should_raise_not_implemented_error_when_called():
-    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QI_type="IE")
+    sdc = SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type="IE")
     problem = AnotherDummyImplicitDAE(nvars=(3, 64))
 
     stepper = TimeStepper(problem=problem, method=sdc, maxiter=1, restol=1e-12)
