@@ -28,7 +28,34 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
         (x_1(t), x_2(t), z(t)) = (e^t, e^t, -\frac{e^t}{2 - t}),
 
     so initial conditions are obtained by
-    :math:`(x_1(0), x_2(0), z(0)) = (x_{1,0}, x_{2,0}, z_0)`.
+    :math:`(x_1(0), x_2(0), z(0)) = (x_{1,0}, x_{2,0}, z_0)`. The problem is taken
+    from [1]_.
+
+    Parameters
+    ----------
+    nvars_diff : tuple of integers, optional
+        Number of unknown differential variables. It is set to `(2,)`.
+    nvars_alg : tuple of integers, optional
+        Number of unknown algebraic variables. It is set to `(1,)`.
+    dtype : type, optional.
+        Datatype of the values. Default is `float`.
+    diff_index : int, optional
+        Differentiation index of the DAE. It is given by `2`.
+    t_span : tuple, optional
+        Time domain where the problem lives. Default is `(0.0, 1.0)`.
+    name : str, optional
+        Name of the problem.
+
+    Attributes
+    ----------
+    a : float
+        Problem parameter. It is set to `10.0`.
+
+    References
+    ----------
+    .. [1] U. M. Ascher and L. R. Petzold, Computer Methods for Ordinary
+           Differential Equations and Differential-Algebraic Equations, SIAM, 
+           Philadelphia, PA, 1998.
     """
 
     def __init__(
