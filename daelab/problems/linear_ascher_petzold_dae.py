@@ -1,6 +1,5 @@
 import numpy as np
 
-from daelab.base.datatypes.array import Array
 from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProblem
 
 
@@ -108,7 +107,7 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
             + (self.a - 1.0) * u.alg[0]
             + 2.0 * np.exp(t)
         )
-        f = Array((self.nvars_diff, self.init[-1]))
+        f = self.dtype_diff(self.init_diff)
         f[:] = (f1, f2)
         return f
 
@@ -134,7 +133,7 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
             + (t**2 - 4.0) * u.diff[1]
             - (t**2 + t - 2.0) * np.exp(t)
         )
-        g = Array((self.nvars_alg, self.init[-1]))
+        g = self.dtype_alg(self.init_alg)
         g[:] = g_val
         return g
 

@@ -1,6 +1,19 @@
+import numpy as np
 import pytest
 
+from daelab.base.datatypes.array import Array
+from daelab.base.datatypes.partitioned import IMEXArray
+from daelab.base.datatypes.semiexplicit import SemiexplicitArray, SemiexplicitIMEXArray
 from daelab.base.problems.semi_explicit_dae_problem import SemiexplicitDAEProblem
+
+
+class OtherArray(Array):
+    pass
+
+
+class CustomPartsArray(SemiexplicitArray):
+    dtype_diff = OtherArray
+    dtype_alg = OtherArray
 
 
 class IncompleteSemiexplicitDAE(SemiexplicitDAEProblem):
@@ -15,6 +28,14 @@ class DummySemiexplicitDAE(SemiexplicitDAEProblem):
 
     def f_alg(self, u, t):
         return u.diff[:] + u.alg[:] - 1
+
+
+class ProblemWithCustomParts(DummySemiexplicitDAE):
+    dtype_u = CustomPartsArray
+
+
+class ProblemWithImexRhs(DummySemiexplicitDAE):
+    dtype_f = SemiexplicitIMEXArray
 
 
 class DummySemiexplicitDAEWithExactSolution(DummySemiexplicitDAE):
@@ -46,8 +67,46 @@ def test_attribute_init_should_be_tuple_of_dtype_and_nvars(
     )
 
     assert problem.init == (nvars_diff, nvars_alg, complex), (
-        "init is not set to (nvars, dtype)."
+        "init is not set to (nvars_diff, nvars_alg, dtype)."
     )
+    assert problem.init_diff == (nvars_diff, complex), (
+        "init_diff is not set to (nvars_diff, dtype)."
+    )
+    assert problem.init_alg == (nvars_alg, complex), (
+        "init_alg is not set to (nvars_alg, dtype)."
+    )
+
+
+def test_dtype_diff_and_dtype_alg_are_array_by_default():
+    problem = DummySemiexplicitDAE((2,), (1,))
+
+    assert problem.dtype_diff is Array
+    assert problem.dtype_alg is Array
+
+
+def test_dtype_diff_and_dtype_alg_follow_dtype_u():
+    problem = ProblemWithCustomParts((2,), (1,))
+
+    assert problem.dtype_diff is OtherArray
+    assert problem.dtype_alg is OtherArray
+
+
+def test_dtype_diff_and_dtype_alg_do_not_depend_on_dtype_f():
+    problem = ProblemWithImexRhs((2,), (1,))
+
+    assert problem.dtype_diff is Array
+    assert type(problem.dtype_f(problem.init).diff) is IMEXArray
+
+
+def test_dtype_diff_and_dtype_alg_create_zero_arrays_with_shape_of_the_parts():
+    problem = DummySemiexplicitDAE((2, 3), (1, 3), dtype=float)
+
+    d, a = problem.dtype_diff(problem.init_diff), problem.dtype_alg(problem.init_alg)
+
+    assert d.shape == (2, 3) and a.shape == (1, 3)
+    assert d.dtype == np.dtype(float) and a.dtype == np.dtype(float)
+
+    assert not np.any(d.values) and not np.any(a.values)
 
 
 def test_attribute_is_semiexplicit_dae_should_set_to_True(nvars=(1,)):

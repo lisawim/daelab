@@ -46,7 +46,8 @@ class SemiexplicitArray(PartitionedArray):
     """
 
     _components = ("diff", "alg")
-    _diff_type = Array
+    dtype_diff = Array
+    dtype_alg = Array
 
     def __init__(self, init):
         """Initialization routine."""
@@ -58,8 +59,8 @@ class SemiexplicitArray(PartitionedArray):
         self.nvars_diff = tuple(nvars_diff)
         self.nvars_alg = tuple(nvars_alg)
         self.dtype = dtype
-        self.diff = self._diff_type((self.nvars_diff, dtype))
-        self.alg = Array((self.nvars_alg, dtype))
+        self.diff = self.dtype_diff((self.nvars_diff, dtype))
+        self.alg = self.dtype_alg((self.nvars_alg, dtype))
 
 
 class SemiexplicitIMEXArray(SemiexplicitArray):
@@ -110,4 +111,4 @@ class SemiexplicitIMEXArray(SemiexplicitArray):
     [0.58 0.58 0.58 0.58]]
     """
 
-    _diff_type = IMEXArray
+    dtype_diff = IMEXArray
