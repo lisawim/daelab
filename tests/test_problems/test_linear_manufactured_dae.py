@@ -1,11 +1,19 @@
 import numpy as np
 import pytest
 
+from daelab.base.datatypes.semiexplicit import SemiexplicitArray
 from daelab.problems.linear_manufactured_dae import LinearManufacturedDAE
 
 
 def test_attributes_are_initialized_by_default_after_instantiation():
     problem = LinearManufacturedDAE()
+
+    assert problem.dtype_u is SemiexplicitArray, (
+        "dtype_u is not of SemiexplicitArray type."
+    )
+    assert problem.dtype_f is SemiexplicitArray, (
+        "dtype_f is not of SemiexplicitArray type."
+    )
 
     assert problem.nvars_diff == problem.nvars_alg == (1,), (
         "nvars_diff and nvars_alg are not set to (1,)!"

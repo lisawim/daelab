@@ -41,6 +41,16 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
         ``(nvars_diff, nvars_alg, dtype)`` with ``nvars_diff`` and ``nvars_alg``
         of the form ``(n_unknowns, *spatial)`` with coinciding spatial
         dimensions, and the data type of the entries.
+    init_diff : tuple
+        ``(nvars_diff, dtype)`` with ``nvars_diff`` of the form
+        ``(n_unknowns, *spatial)`` with coinciding spatial dimensions, and the
+        data type of the entries. It defines the ``init`` only for the ``diff``
+        part.
+    init_alg : tuple
+        ``(nvars_alg, dtype)`` with ``nvars_alg`` of the form
+        ``(n_unknowns, *spatial)`` with coinciding spatial dimensions, and the
+        data type of the entries. It defines the ``init`` only for the ``alg``
+        part.
     nvars_diff : tuple of integers
         Number of unknown differential variables and spatial dimensions.
     nvars_alg : tuple of integers
@@ -102,6 +112,17 @@ class SemiexplicitDAEProblem(DAEProblem, ABC):
 
         self.validate_nvars(nvars=nvars_alg)
         self.nvars_alg = nvars_alg
+
+        self.init_diff = (self.nvars_diff, self.dtype)
+        self.init_alg = (self.nvars_alg, self.dtype)
+
+    @property
+    def dtype_diff(self):
+        return self.dtype_u.dtype_diff
+
+    @property
+    def dtype_alg(self):
+        return self.dtype_u.dtype_alg
 
     @abstractmethod
     def f_diff(self, u, t):
