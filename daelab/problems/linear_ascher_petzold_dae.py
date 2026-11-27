@@ -137,6 +137,92 @@ class LinearAscherPetzoldDAE(SemiexplicitDAEProblem):
         g[:] = g_val
         return g
 
+    def solve_system(self, factor, u0, t, rhs):
+            """
+            Solves the linear implicit system by a direct solve.
+    
+            Parameters
+            ----------
+            factor : float
+                Local stepsize or any other factor required for quadrature.
+            u0 : SemiexplicitArray
+                Initial guess for `u`.
+            t : float
+                Current time.
+            rhs : SemiexplicitArray
+                Right-hand side for the linear implicit system.
+    
+            Returns
+            -------
+            SemiexplicitArray
+                Solution `u` of the linear system.
+            """
+            b = np.r_[rhs.diff[:], 0.0]
+            C = np.array(
+                [
+                    [1 - factor * (self.a - 1 / (2 - t)), 0.0, -factor * (2 - t) * self.a],
+                    [-factor * ((self.a - 1) / (2 - t)), 1 + factor, -factor * (self.a - 1)],
+                    [t + 2, t**2 - 4, 0.0],
+                ]
+            )
+    
+            u = np.linalg.solve(C, b)
+    
+            solution = self.dtype_u(self.init)
+            solution[:] = ((u[0], u[1]), u[2])
+            return solution
+
+    def solve_system(self, factor, u0, t, rhs):
+        u = u0.copy()
+
+        # Start newton iteration
+        n = 0
+        res = 99
+        while n < 10:
+            # Form the function g(u), such that the solution to the nonlinear problem is a root of g
+            f_diff, f_alg = self.f_diff(u, t), self.f_alg(u, t)
+
+            g_diff, g_alg = u.diff - factor * f_diff - rhs.diff, f_alg
+            g = np.concatenate((g_diff, g_alg))
+
+            # If g is close to 0, then we are done
+            res = np.linalg.norm(g, np.inf)
+            if res < 1e-13:
+                break
+
+            # Inverse of dg
+            dg = np.array(
+                [
+                    [1.0 - factor * (self.a - 1.0 / (2.0 - t)), 0.0, -factor * (2.0 - t) * self.a],
+                    [-factor * ((self.a - 1.0) / (2.0 - t)), 1.0 + factor, -factor * (self.a - 1.0)],
+                    [t + 2.0, t**2 - 4.0, 0.0],
+                ]
+            )
+
+            # Newton update: u1 = u0 - g/dg
+            dx = np.linalg.solve(dg, g)
+
+            u.diff[:] -= dx[:2]
+            u.alg[0] -= dx[2]
+
+            n += 1
+            # self.work_counters["newton"]()
+
+        # if np.isnan(res) and self.stop_at_nan:
+        #     raise ProblemError("Newton got nan after %i iterations, aborting..." % n)
+        # elif np.isnan(res):
+        #     self.logger.warning("Newton got nan after %i iterations..." % n)
+        # if n == self.newton_maxiter:
+        #     msg = "Newton did not converge after %i iterations, error is %s" % (n, res)
+        #     if self.stop_at_maxiter:
+        #         raise ProblemError(msg)
+        #     else:
+        #         self.logger.warning(msg)
+
+        solution = self.dtype_u(self.init)
+        solution[:] = u
+        return solution
+
     def u_exact(self, t):
         """
         Computes the exact solution of `u` at time `t`.

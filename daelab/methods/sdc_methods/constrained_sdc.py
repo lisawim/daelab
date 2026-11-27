@@ -67,7 +67,7 @@ class ConstrainedSDC(SDCMethod):
             for j in range(self.num_nodes):
                 res[m].diff[:] += dt * self.Q[m, j] * self.f[j + 1].diff[:]
 
-            res_norm.append(abs(res[m].diff[:]))
+            res_norm.append(max(abs(res[m].diff[:])))
 
         residual = max(res_norm)
         return residual
