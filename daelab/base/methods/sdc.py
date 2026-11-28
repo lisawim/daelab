@@ -58,7 +58,7 @@ class SDCMethod(Method):
         self.QD_type = QD_type
         self.node_type = node_type
 
-        self.nodes, self.weights, self.Q = self._generate_coefficients()
+        self.nodes, self.weights, self.Q, self.coll = self._generate_coefficients()
 
         self.QD = self.get_QDelta(QD_type=self.QD_type)
 
@@ -67,11 +67,25 @@ class SDCMethod(Method):
 
     @property
     def problem(self):
-        """Getter for the problem."""
+        """
+        Provides access to the problem as private variable.
+
+        Returns
+        -------
+        DAEProblem
+            The problem instance.
+        """
         return self.__problem
 
     def setup(self, problem: DAEProblem) -> None:
-        """Sets the problem as attribute to the class."""
+        """
+        Sets the problem as attribute to the class.
+
+        Parameters
+        ----------
+        problem : DAEProblem
+            The problem instance.
+        """
         self.__problem = problem
         self.setup_node_data()
 
@@ -83,7 +97,20 @@ class SDCMethod(Method):
         self.f = NodeList(prob.dtype_f, prob.init, self.num_nodes)
 
     def _generate_coefficients(self):
-        """Generate coefficients for SDC method."""
+        """
+        Generate coefficients for SDC method.
+
+        Returns
+        -------
+        nodes : np.1darray
+            The collocation nodes.
+        weights : np.1darray
+            The corresponding weights for the collocation update.
+        Q :  np.ndarray
+            The spectral integration matrix.
+        coll : qmat.qcoeff.collocation.Collocation
+            The collocation generator.
+        """
 
         coll = Q_GENERATORS["coll"](
             nNodes=self.num_nodes,
@@ -92,10 +119,33 @@ class SDCMethod(Method):
         )
 
         nodes, weights, Q = coll.genCoeffs()
-        return nodes, weights, Q
+        return nodes, weights, Q, coll
 
-    def get_QDelta(self, QD_type):
-        QDelta = QDELTA_GENERATORS[QD_type](nodes=self.nodes).getQDelta()
+    def get_QDelta(self, QD_type, k_sweep: int = None):
+        r"""
+        Returns the :math:`Q_\Delta`-coefficients.
+
+        Parameters
+        ----------
+        QD_type : str
+            Type of :math:`Q_\Delta` matrix.
+        k_sweep : int, optional
+            Number of current sweep/iteration. It is only
+            required for ``"MIN-SR-FLEX"``.
+
+        Returns
+        -------
+        QDelta : np.ndarray
+            The :math:`Q_\Delta` matrix.
+
+        Raises
+        ------
+        ValueError
+            If ``QDelta`` is not of lower-triangular form.
+        """
+        QDelta = QDELTA_GENERATORS[QD_type](
+            qGen=self.coll,
+        ).getQDelta(k=k_sweep)
 
         tri_upper = np.triu_indices_from(QDelta, k=1)
         if any(QDelta[tri_upper] != 0):
