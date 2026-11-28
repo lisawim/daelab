@@ -8,13 +8,14 @@ from tests.test_base.test_problems.test_full_implicit_dae_problem import (
 from daelab.base.methods.sdc import SDCMethod
 
 from qmat import QDELTA_GENERATORS
+from qmat.qcoeff.collocation import Collocation
 
 
 class DummyQDeltaGenerator:
-    def __init__(self, nodes):
-        self.nodes = nodes
+    def __init__(self, qGen):
+        self.gGen = qGen
 
-    def getQDelta(self):
+    def getQDelta(self, k: int = None):
         return np.array([[0.0, 1.0, 2.0], [0.0, 0.0, 4.0], [0.0, 0.0, 0.0]])
 
 
@@ -66,11 +67,12 @@ def test_should_raise_value_error_if_num_nodes_is_less_than_two():
 def test_generate_coefficients_should_return_arrays_of_size_num_nodes():
     num_nodes = 2
     sdc = SDCMethod(num_nodes=num_nodes, quad_type="RADAU-RIGHT", QD_type="IE")
-    nodes, weights, Q = sdc._generate_coefficients()
-
+    nodes, weights, Q, coll = sdc._generate_coefficients()
+    print(type(coll))
     assert isinstance(nodes, np.ndarray)
     assert isinstance(weights, np.ndarray)
     assert isinstance(Q, np.ndarray)
+    assert isinstance(coll, Collocation)
 
     assert nodes.shape == (num_nodes,)
     assert weights.shape == (num_nodes,)
@@ -124,3 +126,8 @@ def test_step_update_should_raise_not_implemented_error():
     err_msg_match = r"Subclasses must implement step_update\(\)."
     with pytest.raises(NotImplementedError, match=err_msg_match):
         sdc.step_update()
+
+
+@pytest.mark.parametrize("QD_type", ["BE", "LU", "VDHS", "MIN3", "MIN-SR-FLEX"])
+def test_QDelta_generator_works_for_a_collection_of_QD_matrices(QD_type):
+    SDCMethod(num_nodes=3, quad_type="RADAU-RIGHT", QD_type=QD_type)
